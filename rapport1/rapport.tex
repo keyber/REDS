@@ -250,7 +250,7 @@ Chaque évènement est défini par 35 attributs, dont son label. Nous retirons d
 dataset les features servant uniquement pour le challenge Kaggle :
 \texttt{Weight}, \texttt{KaggleSet} et \texttt{KaggleWeight}.
 
-Les données sont composées à 34\% de signaux et 66\% de background. Nous
+Les données sont composées à 34\% de signaux et à 66\% de background. Nous
 remarquons cependant que le dataset contient, à vue d'œil, un nombre important
 d'exemples avec des valeurs manquantes (indiquées par -999). Or, travailler avec
 des datasets contenant des données manquantes est compliqué. Nous décidons donc
@@ -260,57 +260,30 @@ données complètes fait perdre 75\% des données. De plus, la base restreinte
 contient 47\% de signaux, soit 13\% de plus que dans le dataset original. Si ce
 dernier est représentatif de la réalité alors celui restreint ne l'est pas.
 
-Les figures \ref{img:heatmap-old}, \ref{img:heatmap} et
-\ref{img:heatmap-restricted} contiennent les heatmaps des matrices de
-corrélation associées à différentes versions du dataset.
 
 \begin{figure}[H]
-    \center 
-    \includegraphics[width=\textwidth]{images/heatmap_old.png}
-    \caption{Heatmap de la matrice de corrélation avec conservation des valeurs
-    invalides}
-    \label{img:heatmap-old}
+    \center
+    \includegraphics[width=\textwidth]{images/heatmap.png}
+    \caption{Matrice de corrélation des attributs en ignorant les valeurs invalides}
+    \label{img:heatmap}
 \end{figure}
-
-La heatmap associée à la matrice de corrélation entre chaque attribut du dataset
-original est présentée sur la \figref{img:heatmap-old}. 
 
 La variable \texttt{EventId} ne fournit pas d'information : cela se remarque,
 par exemple, par une corrélation nulle avec toutes les autres variables. Par la
 suite, nous ne considérerons donc pas cette variable.
 
-%Certaines variables sont fortement corrélées (par exemple la masse et la masse
-%transverse avec une corrélation de -0,45). Ces informations pourrnt se révéler
-%utiles si l'on souhaite traiter les évènements à données manquantes.
 
 Certaines variables sont fortement corrélées, d'autres anti-corrélées, e.g.
 \texttt{DER\_mass\_MMC} et \texttt{DER\_mass\_transverse\_met\_lep}. Ces
-informations pourrnt se révéler utiles si nous souhaitons traiter les évènements à
+informations pourront se révéler utiles si nous souhaitons traiter les évènements à
 données manquantes.
 
-\begin{figure}[H]
-    \center 
-    \includegraphics[width=\textwidth]{images/heatmap.png}
-    \caption{Heatmap de la matrice de corrélation en ignorant les valeurs
-    invalides}
-    \label{img:heatmap}
-\end{figure}
-
-\begin{figure}[H]
-    \center 
-    \includegraphics[width=\textwidth]{images/heatmap_restricted.png}
-    \caption{Heatmap de la matrice de corrélation en ignorant les évènements
-    contenant des valeurs invalides}
-    \label{img:heatmap-restricted}
-\end{figure}
-
-D'après les figures \ref{img:heatmap} et \ref{img:heatmap-restricted}, les
-heatmaps de la matrice de corrélation obtenue en ignorant les valeurs invalides
+La matrice de corrélation obtenue en ignorant les valeurs invalides
 et celle obtenue en ignorant les évènements ayant au moins un attribut à valeur
 invalide sont très similaires.
 
 \begin{figure}[H]
-    \center 
+    \center
     \includegraphics[width=\textwidth]{images/table_corr.png}
     \caption{Coefficients de corrélation entre chaque attribut et la classe
     \texttt{Label}}
@@ -325,11 +298,12 @@ invalide sont très similaires.
     \label{img:hist}
 \end{figure}
 
-La \figref{img:hist} contient les histogrammes de valeurs pour chaque attribut
-du dataset où les valeurs manquantes sont ignorées. Plusieurs histogrammes sont
-très déséquilibrés, cela est peut-être dû à une présence d'erreur dans les
-données. Nous pourrions essayer de traiter ces cas-là en les supprimant par
-exemple.
+Plusieurs histogrammes sont très déséquilibrés, cela est peut-être dû à une présence d'erreur dans les
+données. Nous pourrions essayer de traiter ces cas-là en les supprimant par exemple.
+
+De nombreux histogrammes présentent une répartition exponentielle décroissante des données.
+
+Preprocessing : transformation (non linéaire) de certaines variables en les remplaçant par leur log
 
 %\todo[inline,color=green!40]{(Idée) On pourrait s'aider de la p-value pour
 %sélectionner les features
