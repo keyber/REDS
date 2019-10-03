@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017) (preloaded format=xelatex 2018.2.24)  2 OCT 2019 21:50
+This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017) (preloaded format=xelatex 2018.2.24)  3 OCT 2019 12:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2098,16 +2098,16 @@ Overfull \hbox (0.36636pt too wide) in paragraph at lines 317--319
  []
 
 [2]
-Overfull \hbox (62.76079pt too wide) in paragraph at lines 325--337
+Overfull \hbox (62.74886pt too wide) in paragraph at lines 326--336
 [][] 
  []
 
 [3]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 439.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 439.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 357.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 357.
  (./rapport.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 439.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 439.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 357.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 357.
 
 
 LaTeX Font Warning: Size substitutions with differences

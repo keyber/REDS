@@ -321,119 +321,37 @@ Chaque classifieur est entraîné sur la totalité des données d'entraînement 
 évalué sur l'ensemble de test. Les résultats en apprentissage et en test
 figurent dans le \tabref{tab:ensemble-results}.
 
+
 \begin{table}[H]
-\resizebox{1.15\textwidth}{!}{
-    \begin{tabular}{c|*{5}{c|}c}
-        \multirow{2}{*}{} &
-        \multicolumn{2}{c|}{Accuracy} &
-        \multicolumn{2}{c|}{F1} &
-        \multicolumn{2}{c}{AMS}\\ \cline{2-3} \cline{4-5} \cline{6-7}
-        & Apprentissage & Test  & Apprentissage & Test & Apprentissage & Test \\
-        \hline
-        Bagging & 68.74\% & 67.17\% & 40.49\% & 38.44\% & 35.04 & 23.12 \\
-        Random Forest & 98.66\% & 78.07\% & 97.97\% & 69.10\% & 140.71 & 35.10 \\
-        AdaBoost & 80.43\% & 78.00\% & 74.19\% & 72.03\% & 58.06 & 35.06 \\
-\end{tabular}}
-\caption{Performances obtenues par chaque méthode}
-\label{tab:ensemble-results}
+    \resizebox{1.15\textwidth}{!}{
+        \begin{tabular}{c|*{5}{c|}c}
+            \multirow{2}{*}{} &
+            \multicolumn{2}{c|}{Accuracy} &
+            \multicolumn{2}{c|}{F1} &
+            \multicolumn{2}{c}{AMS}\\ \cline{2-3} \cline{4-5} \cline{6-7}
+            & Apprentissage & Test  & Apprentissage & Test & Apprentissage & Test \\
+            \hline
+            Random Forest & 94.91\% & 0.8\% & \% & \% &  & \\
+        \end{tabular}}
+    \caption{Performances obtenues par chaque méthode}
+    \label{tab:ensemble-results}
 \end{table}
 
-%La base de données issue du \emph{ATLAS Higgs Boson Machine Learning Challenge
-%2014} est constituée de 818238 évènements simulés pouvant être soit des
-%collisions \emph{"Higgs to tautau"}, soit du \emph{background}. Étant données
-%ces deux classes, \emph{"s"} pour \emph{signal} et \emph{"b"} pour
-%\emph{background}, l'objectif est de classifier au mieux les évènements.
-%
-%\begin{figure}[H]
-%    \center 
-%    \includegraphics[width=\textwidth]{images/dataset_sample.png}
-%    \caption{Échantillon de 5 évènements du dataset avec uniquement les 8
-%    premiers attributs affichés}
-%\end{figure}
-%
-%Chaque évènement est défini par 35 attributs, dont son label. Nous retirons du
-%dataset les features servant uniquement pour le challenge Kaggle :
-%\texttt{Weight}, \texttt{KaggleSet} et \texttt{KaggleWeight}.
-%
-%Les données sont composées à 34\% de signaux et 66\% de background. Nous
-%remarquons cependant que le dataset contient, à vue d'œil, un nombre important
-%d'exemples avec des valeurs manquantes (indiquées par -999). Or, travailler avec
-%des datasets contenant des données manquantes est compliqué. Nous décidons donc
-%de supprimer les évènements dont au moins un attribut n'est pas valide et nous
-%nous retrouvons avec seulement 223574 exemples : restreindre le dataset aux
-%données complètes fait perdre 75\% des données. De plus, la base restreinte
-%contient 47\% de signaux, soit 13\% de plus que dans le dataset original. Si ce
-%dernier est représentatif de la réalité alors celui restreint ne l'est pas.
-%
-%Les figures \ref{img:heatmap-old}, \ref{img:heatmap} et
-%\ref{img:heatmap-restricted} contiennent les heatmaps des matrices de
-%corrélation associées à différentes versions du dataset.
-%
-%\begin{figure}[H]
-%    \center 
-%    \includegraphics[width=\textwidth]{images/heatmap_old.png}
-%    \caption{Heatmap de la matrice de corrélation avec conservation des valeurs
-%    invalides}
-%    \label{img:heatmap-old}
-%\end{figure}
-%
-%La heatmap associée à la matrice de corrélation entre chaque attribut du dataset
-%original est présentée sur la \figref{img:heatmap-old}. 
-%
-%La variable \texttt{EventId} ne fournit pas d'information : cela se remarque,
-%par exemple, par une corrélation nulle avec toutes les autres variables. Par la
-%suite, nous ne considérerons donc pas cette variable.
-%
-%%Certaines variables sont fortement corrélées (par exemple la masse et la masse
-%%transverse avec une corrélation de -0,45). Ces informations pourrnt se révéler
-%%utiles si l'on souhaite traiter les évènements à données manquantes.
-%
-%Certaines variables sont fortement corrélées, d'autres anti-corrélées, e.g.
-%\texttt{DER\_mass\_MMC} et \texttt{DER\_mass\_transverse\_met\_lep}. Ces
-%informations pourrnt se révéler utiles si nous souhaitons traiter les évènements à
-%données manquantes.
-%
-%\begin{figure}[H]
-%    \center 
-%    \includegraphics[width=\textwidth]{images/heatmap.png}
-%    \caption{Heatmap de la matrice de corrélation en ignorant les valeurs
-%    invalides}
-%    \label{img:heatmap}
-%\end{figure}
-%
-%\begin{figure}[H]
-%    \center 
-%    \includegraphics[width=\textwidth]{images/heatmap_restricted.png}
-%    \caption{Heatmap de la matrice de corrélation en ignorant les évènements
-%    contenant des valeurs invalides}
-%    \label{img:heatmap-restricted}
-%\end{figure}
-%
-%D'après les figures \ref{img:heatmap} et \ref{img:heatmap-restricted}, les
-%heatmaps de la matrice de corrélation obtenue en ignorant les valeurs invalides
-%et celle obtenue en ignorant les évènements ayant au moins un attribut à valeur
-%invalide sont très similaires.
-%
-%\begin{figure}[H]
-%    \center 
-%    \includegraphics[width=\textwidth]{images/table_corr.png}
-%    \caption{Coefficients de corrélation entre chaque attribut et la classe
-%    \texttt{Label}}
-%    \label{img:table-corr}
-%\end{figure}
-%
-%\begin{figure}[H]
-%    \center 
-%    \includegraphics[width=\textwidth]{images/histogrammes.png}
-%    \caption{Histogramme des valeurs de chaque attribut du dataset où les
-%    valeurs manquantes sont ignorées}
-%    \label{img:hist}
-%\end{figure}
-%
-%La \figref{img:hist} contient les histogrammes de valeurs pour chaque attribut
-%du dataset où les valeurs manquantes sont ignorées. Plusieurs histogrammes sont
-%très déséquilibrés, cela est peut-être dû à une présence d'erreur dans les
-%données. Nous pourrions essayer de traiter ces cas-là en les supprimant par
-%exemple.
+%\begin{table}[H]
+%\resizebox{1.15\textwidth}{!}{
+%    \begin{tabular}{c|*{5}{c|}c}
+%        \multirow{2}{*}{} &
+%        \multicolumn{2}{c|}{Accuracy} &
+%        \multicolumn{2}{c|}{F1} &
+%        \multicolumn{2}{c}{AMS}\\ \cline{2-3} \cline{4-5} \cline{6-7}
+%        & Apprentissage & Test  & Apprentissage & Test & Apprentissage & Test \\
+%        \hline
+%        Bagging & 68.74\% & 67.17\% & 40.49\% & 38.44\% & 35.04 & 23.12 \\
+%        Random Forest & 98.66\% & 78.07\% & 97.97\% & 69.10\% & 140.71 & 35.10 \\
+%        AdaBoost & 80.43\% & 78.00\% & 74.19\% & 72.03\% & 58.06 & 35.06 \\
+%\end{tabular}}
+%\caption{Performances obtenues par chaque méthode}
+%\label{tab:ensemble-results}
+%\end{table}
 
 \end{document}
