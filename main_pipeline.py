@@ -74,7 +74,7 @@ def make_pipe_fast():
     
     pipe_imputed_fast = Pipeline([
         ('col', make_column_transformer((Shift_log(), cols_log), remainder="passthrough")),
-        # ('imp', IterativeImputer(max_iter=int(1e2))),
+        ('imp', IterativeImputer(max_iter=int(1e2))),
         ('sca', StandardScaler()),
         # ('pca', PCA(15)),
         ('gri', GridSearchCV(Pipeline([#('pca', None),
@@ -86,7 +86,7 @@ def make_pipe_fast():
             # 'pca': (None, PCA(15)),
             'clf': (SVC(gamma="auto"),),
             'clf__kernel': ("poly", "rbf"),
-            'clf__max_iter': (int(1e0),),
+            'clf__max_iter': (int(1e5),),
             'clf__C': np.logspace(-2, .5, num=3),
         },
         {
@@ -120,7 +120,7 @@ def make_pipe_fast():
 
 def main():
     t0 = time()
-    data = pd.read_csv('data.csv')
+    data = pd.read_csv('data.csv')[:100]
 
     # seriesObj = data.apply(lambda x_: -999.0 in list(x_), axis=1)
     # data = data[seriesObj == False][:1000]
@@ -131,20 +131,15 @@ def main():
     
     x = data.drop(columns=['Label', "KaggleSet", "Weight", "KaggleWeight", "EventId"])
     
-    print("temps total", time() - t0)
-    print("loaded")
     x = x.replace(-999, np.nan)
-    print(x.isnull().sum().sum())
-    print(x.isnull().mean().mean())
-    
-    exit()
-    
-    IterativeImputer(max_iter=int(1e2)).fit(x)
     
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=.3)
     
     pipe, pipe_param = make_pipe_fast()
     eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test)
+    
+
+    print("temps total", time() - t0)
     
 
 if __name__ == '__main__':
