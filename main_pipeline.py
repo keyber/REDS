@@ -10,7 +10,7 @@ from sklearn.impute import SimpleImputer, IterativeImputer
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, AdaBoostClassifier
 from sklearn.decomposition import PCA
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import Perceptron#, BayesianRidge
 from time import time
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -21,17 +21,11 @@ from joblib import Memory
 
 
 class Shift_log(BaseEstimator, TransformerMixin):
-    cpt_ini = 0
-    cpt_fit = 0
     def __init__(self):
         self.shift = None
-        
-        Shift_log.cpt_ini+=1
 
     # noinspection PyUnusedLocal
     def fit(self, x, y=None):
-        Shift_log.cpt_fit+=1
-        
         self.shift = 1 - np.nanmin(x, axis=0)
         
         return self
@@ -39,86 +33,125 @@ class Shift_log(BaseEstimator, TransformerMixin):
     def transform(self, x):
         return np.log(x + self.shift)
 
-def main():
-    train = pd.read_csv('data.csv')[:100]
-    
-    y = train['Label']
-    y = np.where(y == 's', 1, 0)
-    
-    x = train.drop(columns=['Label', "KaggleSet", "Weight", "KaggleWeight", "EventId"])
+def eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test):
+    for p in pipe_param:
+        gri = pipe.named_steps['gri']
+        gri.param_grid = p
+        
+        t0 = time()
+        pipe.fit(X_train, y_train)
+        # print(pipe_imputed_fast.named_steps['gri'])
+        std = np.std(gri.cv_results_["mean_test_score"]) / gri.best_score_ * 100
+        print("gridsearch best score %.2f (+/-%.2f%%)" % (gri.best_score_, std))
+        print("gridsearch time %.1f" % (time() - t0))
 
-    x = x.replace(-999, np.nan)
-    
-    
+        test_score = pipe.score(X_test, y_test)
+        print("test_score %.2f" % test_score)
+        
+        print("Best parameters set:")
+        best_parameters = gri.best_estimator_.get_params()
+        
+        if type(p) is list :
+            params_defined_by_hand = set().union(*[list(p.keys()) for p in gri.param_grid])
+        else:
+            params_defined_by_hand = set(p.keys())
+        
+        for param_name in best_parameters:
+            if param_name in params_defined_by_hand:
+                val = best_parameters[param_name]
+                if param_name=="clf":
+                    val = type(val)
+                print("\t%s: %r" % (param_name, val))
+        
+        print("\n\n")
+
+
+def make_pipe_fast():
     cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
             "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
 
     mem = Memory(location=tempfile.mkdtemp(), verbose=0)
-
-    pipe_imputed = Pipeline([
-        ('col', make_column_transformer((Shift_log(), cols_log), remainder="passthrough")),
-        ('imp', IterativeImputer()),
-        ('sca', StandardScaler()),
-        ('pca', None),
-        ('clf', None),
-    ], memory=mem, verbose=0)
     
-    param_imputed = [{
-        # 'imp__estimator': (BayesianRidge(),),
-        'imp__max_iter':  (1,),
-        'pca':            (None, PCA(15)),
-        'clf':            (SVC(),),
-        'clf__kernel':    ("poly", "rbf"),
-        'clf__max_iter':  (10,),
-        'clf__C':         (.01, .1),
-    },
-    {
-        'imp__max_iter': (1,),
-        'pca': (None, PCA(15)),
-        'clf': (BaggingClassifier(Perceptron(max_iter=1000), n_estimators=10, max_samples=0.5, max_features=0.5),
-                RandomForestClassifier(n_estimators=10),
-                AdaBoostClassifier(n_estimators=100)),
-    },
+    pipe_imputed_fast = Pipeline([
+        ('col', make_column_transformer((Shift_log(), cols_log), remainder="passthrough")),
+        # ('imp', IterativeImputer(max_iter=int(1e2))),
+        ('sca', StandardScaler()),
+        # ('pca', PCA(15)),
+        ('gri', GridSearchCV(Pipeline([#('pca', None),
+                                       ('clf', None)]), scoring=AMS, refit=True, cv=3, iid=True, param_grid={})),
+    ], memory=mem, verbose=0)
+
+    param_grid = [
+        {
+            # 'pca': (None, PCA(15)),
+            'clf': (SVC(gamma="auto"),),
+            'clf__kernel': ("poly", "rbf"),
+            'clf__max_iter': (int(1e0),),
+            'clf__C': np.logspace(-2, .5, num=3),
+        },
+        {
+            'clf': (BaggingClassifier(Perceptron(max_iter=1000), max_samples=0.5, max_features=0.5),),
+            'clf__n_estimators': (500,),
+        },
+        {
+            'clf': (RandomForestClassifier(),),
+            'clf__n_estimators': (500,),
+            'clf__max_depth': (None, 10),
+        },
+        {
+            'clf': (AdaBoostClassifier(),),
+            'clf__n_estimators': (500,),
+        },
     ]
 
-    pipe_nan = Pipeline([
-        ('col', make_column_transformer((Shift_log(), cols_log), remainder="passthrough")),
-        ('sca', StandardScaler()),
-        ('imp', SimpleImputer(missing_values=np.nan, fill_value=-999999.0)),
-        ('rfc', RandomForestClassifier()),
-    ])
-    param_nan = [{
-        'rfc__n_estimators': (100,),
-        'rfc__max_depth':    (10, None),
-    }]
-    
-    
-    # for scoring in ["accuracy", AMS]:
-    for scoring in [AMS]:
-        print("scoring:", scoring)
-        # for pipe, params in [(pipe_imputed, param_imputed), (pipe_nan, param_nan)]:
-        for pipe, params in [(pipe_imputed, param_imputed)]:
-            grid_search = GridSearchCV(pipe, params, scoring= scoring, cv=3
-                                       , iid=True, n_jobs=1, return_train_score=True, verbose=0)
-            t0 = time()
-            grid_search.fit(x, y)
-            print("done in %0.3fs" % (time() - t0))
+    # pipe_nan = Pipeline([
+    #     ('col', make_column_transformer((Shift_log(), cols_log), remainder="passthrough")),
+    #     ('sca', StandardScaler()),
+    #     ('imp', SimpleImputer(missing_values=np.nan, fill_value=-999999.0)),
+    #     ('rfc', RandomForestClassifier()),
+    # ])
+    # param_nan = [{
+    #     'rfc__n_estimators': (100,),
+    #     'rfc__max_depth':    (10, None),
+    # }]
 
-            std = np.std(grid_search.cv_results_["mean_test_score"]) / grid_search.best_score_ * 100
-            print("Best score         : %0.3f (+/-%.1f%%)" % (grid_search.best_score_, std))
-            print("Best score (train) : %0.3f " % (grid_search.cv_results_["mean_train_score"][grid_search.best_index_]))
-            print("Best parameters set:")
-            best_parameters = grid_search.best_estimator_.get_params()
-            for param_name in sorted(set().union(*[list(p.keys()) for p in params])):
-                print("\t%s: %r" % (param_name, best_parameters[param_name]))
-            print()
+    return pipe_imputed_fast, param_grid
+
+
+def main():
+    t0 = time()
+    data = pd.read_csv('data.csv')
+
+    # seriesObj = data.apply(lambda x_: -999.0 in list(x_), axis=1)
+    # data = data[seriesObj == False][:1000]
+    # assert len(data)==1000
+    
+    y = data['Label']
+    y = np.where(y == 's', 1, 0)
+    
+    x = data.drop(columns=['Label', "KaggleSet", "Weight", "KaggleWeight", "EventId"])
+    
+    print("temps total", time() - t0)
+    print("loaded")
+    x = x.replace(-999, np.nan)
+    print(x.isnull().sum().sum())
+    print(x.isnull().mean().mean())
+    
+    exit()
+    
+    IterativeImputer(max_iter=int(1e2)).fit(x)
+    
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=.3)
+    
+    pipe, pipe_param = make_pipe_fast()
+    eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test)
     
 
 if __name__ == '__main__':
-    import warnings
-    import sys
-    import os
-    if not sys.warnoptions:
-        warnings.simplefilter("ignore")
-        os.environ["PYTHONWARNINGS"] = "ignore"  # Also affect subprocesses
+    # import warnings
+    # import sys
+    # import os
+    # if not sys.warnoptions:
+    #     warnings.simplefilter("ignore")
+    #     os.environ["PYTHONWARNINGS"] = "ignore"  # Also affect subprocesses
     main()
