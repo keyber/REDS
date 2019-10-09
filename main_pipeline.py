@@ -15,6 +15,7 @@ from sklearn.linear_model import Perceptron#, BayesianRidge
 from time import time
 from sklearn.base import BaseEstimator, TransformerMixin
 from AMS import AMS
+import matplotlib.pyplot as plt
 
 import tempfile
 from joblib import Memory
@@ -63,6 +64,11 @@ def eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test):
                     val = type(val)
                 print("\t%s: %r" % (param_name, val))
         
+        # r = gri.cv_results_
+        # plt.errorbar(range(len(r["mean_train_score"])), r["mean_train_score"], yerr=2*r["std_train_score"])
+        # plt.errorbar(range(len(r["mean_test_score"])), r["mean_test_score"], yerr=2*r["std_test_score"])
+        # plt.show()
+        
         print("\n\n")
 
 
@@ -78,15 +84,15 @@ def make_pipe_fast():
         ('sca', StandardScaler()),
         # ('pca', PCA(15)),
         ('gri', GridSearchCV(Pipeline([#('pca', None),
-                                       ('clf', None)]), scoring=AMS, refit=True, cv=3, iid=True, param_grid={})),
+                                       ('clf', None)]),
+            scoring=AMS, refit=True, cv=3, iid=True, return_train_score=False, param_grid={})),
     ], memory=mem, verbose=0)
 
     param_grid = [
         {
             # 'pca': (None, PCA(15)),
-            'clf': (SVC(gamma="auto"),),
+            'clf': (SVC(gamma="auto", max_iter=100000),),
             'clf__kernel': ("poly", "rbf"),
-            'clf__max_iter': (int(1e5),),
             'clf__C': np.logspace(-2, .5, num=3),
         },
         {
@@ -120,7 +126,7 @@ def make_pipe_fast():
 
 def main():
     t0 = time()
-    data = pd.read_csv('data.csv')[:100]
+    data = pd.read_csv('data.csv')[:1000]
 
     # seriesObj = data.apply(lambda x_: -999.0 in list(x_), axis=1)
     # data = data[seriesObj == False][:1000]
