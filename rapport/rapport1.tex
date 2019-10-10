@@ -1,0 +1,311 @@
+\documentclass[12pt]{article}
+
+\usepackage[top=3cm,bottom=3cm]{geometry}
+\geometry{a4paper}
+
+\usepackage{polyglossia}
+\setdefaultlanguage{french}
+\usepackage{csquotes}
+\usepackage{unicode-math}
+%\usepackage{fontspec}
+\usepackage{xltxtra}
+\usepackage{amsmath}
+%\setmathfont{texgyretermes-math.otf}
+\setmainfont[Ligatures=Rare]{Linux Libertine O}%
+
+\renewcommand{\textsc}{}
+
+\usepackage[htt]{hyphenat}
+\usepackage{subcaption}
+
+\usepackage{amsopn}
+\usepackage{stmaryrd} %% llbracket
+\usepackage{algorithm2e}
+
+\usepackage{float}
+
+\newenvironment{algorithme}[1][t]
+  {\renewcommand{\algorithmcfname}{Algorithme}% Update algorithm name
+   \begin{algorithm}[#1]%
+  }{\end{algorithm}}
+
+
+% Macros
+\usepackage{xparse}
+\usepackage{xifthen} % \ifthenelse
+
+\newtheorem{theorem}{Théorème}[section]
+\newtheorem{definit}{Définition}[section]
+\newtheorem{corollary}{Corollaire}[theorem]
+\newtheorem{lemma}[theorem]{Lemme}
+
+\usepackage{tabularx}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\usepackage{multirow}
+
+
+%%%% Imiter Mlapafr2 avec Bibtex %%%%
+%% TODO: éliminer les attributs superflus pour la bibliographie
+\usepackage[backend=biber,style=authoryear-comp,uniquename=init,firstinits=true,
+            %% "et al" pour > deux auteurs, & pour exactement 2
+            uniquelist=false,maxcitenames=2,mincitenames=1,maxbibnames=99,
+            isbn=false,url=false,doi=false
+]{biblatex}
+
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map{
+      \step[fieldsource=series,
+        match={\regexp{\s}}, replace={\regexp{\\nobreakspace\x20}}]
+      }
+  }
+}
+
+\renewcommand{\cite}{\parencite}
+\renewcommand*{\nameyeardelim}{\addcomma \addnbspace}
+% \renewcommand*{\multinamedelim}{\space} % fait le contraire de ce qu'on veut
+\renewcommand*{\revsdnamedelim}{}
+\renewcommand*\finalnamedelim{ \& }
+
+\DefineBibliographyExtras{french}{\restorecommand\mkbibnamelast}
+
+\DeclareNameAlias{default}{last-first}
+\DeclareNameAlias{sortname}{last-first}
+
+% Supprimer les guillemets dans les titres
+\DeclareFieldFormat[article,incollection,unpublished,inproceedings]{title}{#1}
+
+% Je n'aime pas, mais j'ai l'impression que mlapafr utilise ça
+\renewbibmacro{in:}{\printtext{In} \addspace}
+
+
+% Espaces insécables dans les citations et la bibliographie (noms de
+% conférences) ?
+
+\usepackage{xpatch}
+\usepackage{xstring}
+%\xpatchbibmacro{series+number}{\addspace}{\addnbspace}{}{}
+
+\renewbibmacro*{series+number}{%
+  \setunit*{\addnbspace}%
+  \printfield{series}%
+  \printfield{number}%
+  \newunit}
+
+
+\xpatchbibmacro{textcite}{\addcoma}{}{}{}
+
+\addbibresource{references.bib}
+
+\usepackage{hyperref}
+\usepackage{xspace} % Espaces après macros
+
+
+\usepackage{todonotes}
+\newcommand{\question}[1]{\todo[color=green!40]{#1}}
+\newcommand{\questioni}[1]{\todo[color=green!40,inline]{#1}}
+
+
+%%%% Macros Arthur %%%%
+\newcommand{\diff}[2]{\frac{\partial{}{#1}}{\partial{}{#2}}}
+
+\usepackage{mathtools}
+\DeclarePairedDelimiterX\setc[2]{\{}{\}}{#1 \;\delimsize\vert\; #2}
+
+\newcommand\mimic{\texttt{MIMIC-III} }
+\newcommand\wordtovec{\texttt{Word2Vec} }
+\newcommand\doctovec{\texttt{Doc2Vec} }
+\newcommand\wordpieces{\emph{word pieces} }
+\newcommand\bow{\emph{bag of words} }
+\newcommand\skipgram{\emph{skip-gram} }
+\newcommand\cbow{\emph{CBOW} }
+\newcommand\batchnorm{\emph{batch normalization} }
+\newcommand\bert{\emph{BERT} }
+
+\newcommand{\contrainte}[1]{($\text{C}_{#1}$)}
+
+
+% Notation suites mathématiques
+%% 3 options - nécessite xparse !
+%% \newcommand{\nsuite}[3][i][N]{({#3}_{#1})_{#1=1}^{#2}}
+\DeclareDocumentCommand{\nsuite}{ O{N} O{i} m }
+  {({#3}_{#2})_{#2=1}^{#1}}
+
+% Notation pour 'la matrice X sans la colonne j'
+\newcommand{\matremov}[2]{%
+  %%Substitution i et j !
+  \StrSubstitute{#2}{j}{\jmath}[\temp]%
+  \StrSubstitute{\temp}{i}{\imath}[\tempp]%
+  #1_{\hat{\tempp}
+  }
+}
+
+% Cardinal
+\newcommand{\card}[1]{\left\vert{#1}\right\vert}
+
+% Intervalles
+\NewDocumentCommand{\INTERVALINNARDS}{ m m }{
+    #1 {,} #2
+}
+\NewDocumentCommand{\inter}{ s m >{\SplitArgument{1}{,}}m m o }{
+    \IfBooleanTF{#1}{
+        \left#2 \INTERVALINNARDS #3 \right#4
+    }{
+        \IfValueTF{#5}{
+            #5{#2} \INTERVALINNARDS #3 #5{#4}
+        }{
+            #2 \INTERVALINNARDS #3 #4
+        }
+    }
+}
+
+%% intervalle entier
+\newcommand{\ninter}[2]{\llbracket #1...#2 \rrbracket}
+
+% Transposée
+
+\makeatletter
+\newcommand*{\transpose}{%
+  {\mathpalette\@transpose{}}%
+}
+\newcommand*{\@transpose}[2]{%
+  % #1: math style
+  % #2: unused
+  \raisebox{0.2em}{$\m@th#1\intercal$}%
+}
+\makeatother
+
+%% FIXME : pas tout à fait la bonne notation
+%% Voir ISO 80000-2 §2-15.7
+%% \newcommand*{\tran}{^{\mkern-1.5mu\mathsf{T}}} ?
+\newcommand{\tr}[1]{ {#1}^{\! \transpose}}
+
+% Gras
+% Précaution pour les lettres avec exposant : voir mathspec !
+% FIXME : le " fait buguer \emph ???
+\newcommand{\mb}[1]{{\boldsymbol{\mathbf{#1}}}}
+
+% Distance à base de norme
+
+\newcommand*{\newvarcmd}[2]{%
+  \newcommand*{#1}[2][]{%
+    \begingroup % \sizel and \sizer are local:
+      \let\varl\left
+      \let\varr\right
+      \ifthenelse{\isempty{##1}}{%
+        \let\sizel\relax
+        \let\sizer\relax
+      }{%
+        \expandafter\let\expandafter\sizel\csname ##1l\endcsname
+        \expandafter\let\expandafter\sizer\csname ##1r\endcsname
+      }%
+      #2%
+    \endgroup
+  }
+}
+
+\newvarcmd{\abs}{\sizel\lvert #2\sizer\rvert}
+\newvarcmd{\norm}{\sizel\lVert #2\sizer\rVert}
+\newcommand{\dist}[2]{\norm{#1 - #2}}
+
+%% Macro pour les vecteurs directeurs
+\NewDocumentCommand{\vdir}{ m O{j} O{r} }{\mb{#1}_{#3#2}}
+\newvarcmd{\primabs}{\sizel\lvert #2\sizer\rvert}
+
+\renewcommand{\eqref}[1]{équation~\ref{#1}}
+\newcommand{\algref}[1]{algorithme~\ref{#1}}
+\newcommand{\figref}[1]{figure~\ref{#1}}
+\newcommand{\tabref}[1]{tableau~\ref{#1}}
+\newcommand{\secref}[1]{section~\ref{#1}}
+
+\AtBeginDocument{ %Bizarrerie unicode-math
+  \DeclareMathOperator{\mmin}{\mathrm{min}}
+  \DeclareMathOperator{\mmax}{\mathrm{max}}
+  \DeclareMathOperator{\eexp}{\mathrm{exp}}
+  \DeclareMathOperator{\argmin}{\text{argmin}}
+  \newcommand{\gargmin}[2]{\argmin_{#1}\left\{{#2}\right\} }
+  \DeclareMathOperator{\prox}{\mathrm{prox}}
+  \newcommand{\proxg}[3]{\prox_{\frac{#1}{#2}{#3}}}
+}
+
+\begin{document}
+\title{REDS - TP1 : Analyse préliminaire des données}
+\author{Laura Nguyen et Keyvan Beroukhim}
+\maketitle
+
+La base de données issue du \emph{ATLAS Higgs Boson Machine Learning Challenge
+2014} est constituée de 818238 évènements simulés pouvant être soit des
+collisions \emph{"Higgs to tautau"}, soit du \emph{background}. Étant données
+ces deux classes, \emph{"s"} pour \emph{signal} et \emph{"b"} pour
+\emph{background}, l'objectif est de classifier au mieux les évènements.
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=\textwidth]{images/dataset_sample.png}
+    \caption{Échantillon de 5 évènements du dataset avec uniquement les 8
+    premiers attributs affichés}
+\end{figure}
+
+Chaque évènement est défini par 35 attributs, dont son label. Nous retirons du
+dataset les features servant uniquement pour le challenge Kaggle :
+\texttt{Weight}, \texttt{KaggleSet} et \texttt{KaggleWeight}.
+
+Les données sont composées à 34\% de signaux et à 66\% de background. Nous
+remarquons cependant que le dataset contient, à vue d'œil, un nombre important
+d'exemples avec des valeurs manquantes (indiquées par -999). Or, travailler avec
+des datasets contenant des données manquantes est compliqué. Nous décidons donc
+de supprimer les évènements dont au moins un attribut n'est pas valide et nous
+nous retrouvons avec seulement 223574 exemples : restreindre le dataset aux
+données complètes fait perdre 75\% des données. De plus, la base restreinte
+contient 47\% de signaux, soit 13\% de plus que dans le dataset original. Si ce
+dernier est représentatif de la réalité alors celui restreint ne l'est pas.
+
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=\textwidth]{images/heatmap.png}
+    \caption{Matrice de corrélation des attributs en ignorant les valeurs invalides}
+    \label{img:heatmap}
+\end{figure}
+
+La variable \texttt{EventId} ne fournit pas d'information : cela se remarque,
+par exemple, par une corrélation nulle avec toutes les autres variables. Par la
+suite, nous ne considérerons donc pas cette variable.
+
+
+Certaines variables sont fortement corrélées, d'autres anti-corrélées, e.g.
+\texttt{DER\_mass\_MMC} et \texttt{DER\_mass\_transverse\_met\_lep}. Ces
+informations pourront se révéler utiles si nous souhaitons traiter les évènements à
+données manquantes.
+
+La matrice de corrélation obtenue en ignorant les valeurs invalides
+et celle obtenue en ignorant les évènements ayant au moins un attribut à valeur
+invalide sont très similaires.
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=\textwidth]{images/table_corr.png}
+    \caption{Coefficients de corrélation entre chaque attribut et la classe
+    \texttt{Label}}
+    \label{img:table-corr}
+\end{figure}
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=\textwidth]{images/histogrammes.png}
+    \caption{Histogramme des valeurs de chaque attribut du dataset où les
+    valeurs manquantes sont ignorées}
+    \label{img:hist}
+\end{figure}
+
+Plusieurs histogrammes sont très déséquilibrés, cela est peut-être dû à une
+présence d'erreur dans les données. Nous pourrions essayer de traiter ces cas-là
+en les supprimant par exemple.
+
+De nombreux histogrammes présentent une répartition exponentielle décroissante
+des données.
+
+Preprocessing : transformation (non linéaire) de certaines variables en les
+remplaçant par leur logpq
+
+\end{document}

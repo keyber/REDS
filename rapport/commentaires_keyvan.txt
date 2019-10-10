@@ -1,0 +1,27 @@
+BUGFIX :
+	On calculait précédemment la matrice de corrélation avec des -999.
+	J'ai remplacé les -999 par des np.nan qui sont ignorés par pandas.
+	J'ai changé l'image de la matrice de corrélation (non restricted).
+	Ces quatre phrases ont exactement le même nombre de caractères !!!
+
+
+Commentaires à rajouter au LaTeX :
+
+La variable "EventId" ne fournit pas d'information, cela se remarque par exemple par une corrélation nulle avec toutes les autres variables. Par la suite, on ne considèrera donc pas cette variable.
+
+Certaines variables sont fortement corrélées (par exemple la masse et la masse transverse avec une corrélation de -0,45). Ces informations pourront se révéler utiles si l'on souhaite traiter les évènements à données manquantes.
+
+La matrice de corrélation obtenue en ignorant les valeurs nulles et la matrice obtenue en ignorant les lignes contenant au moins une valeur nulle sont très similaires.
+
+<insérer l'image des histogrammes, si elle est trop grosse tu peux n'en afficher qu'une sous partie>
+
+Plusieurs histogrammes sont très déséquilibrés, cela est peut-être dû à une présence d'erreur dans les données. On pourra essayer de traiter ces cas-là en les supprimant par exemple.
+
+
+
+todo 0: voir les histogrammes sans les outliers
+todo 1: appliquer une transformation sur les données afin d'obtenir un histogramme plus plat ?
+
+todo 2: faire une PCA pour voir la variance expliquées des données en fonction du nombre de composantes
+todo 3: faire une PCA / t-SNE de dimension 2 pour visualiser des données (ex 10000 points)
+
