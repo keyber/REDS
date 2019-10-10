@@ -47,7 +47,7 @@ def randomized_grid_search(classifier, grid, X_train, y_train, X_test, y_test,
 
     print("Mean train scores : {}".format(gs.cv_results_['mean_train_score']))
     print("Mean test scores : {}".format(gs.cv_results_['mean_test_score']))
-    print("Best parameters for random forest : {}".format(gs.best_params_))
+    print("Best parameters : {}".format(gs.best_params_))
 
     best_clf = gs.best_estimator_
 
@@ -75,6 +75,7 @@ def main(clf_name, scoring_function):
     random_grid = None
     nelement = 10000
     assert clf_name == 'RandomForest' or clf_name == 'AdaBoost'
+    assert scoring_function == 'accuracy' or scoring_function == 'f1' or scoring_function == 'AMS'
 
     if clf_name == 'RandomForest':
         print("Using random forest")
@@ -106,8 +107,7 @@ def main(clf_name, scoring_function):
 
         random_grid = {
             'n_estimators': [50, 100],
-            'learning_rate': [0.01, 0.05, 0.1, 0.3, 1],
-            'loss': ['linear', 'square', 'exponential']
+            'learning_rate': [0.01, 0.05, 0.1, 0.3, 1]
         }
 
     print("Preprocessing data... ({} samples)".format(nelement))
@@ -122,6 +122,6 @@ def main(clf_name, scoring_function):
 
 
 if __name__ == '__main__':
-    scoring_function = 'accuracy'
-    clf_name = 'RandomForest'
+    scoring_function = 'AMS'
+    clf_name = 'AdaBoost'
     main(clf_name, scoring_function)
