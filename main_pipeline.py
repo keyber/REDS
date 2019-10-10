@@ -45,7 +45,8 @@ def eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test, n_splits):
         
         std_best = gri.cv_results_["std_test_score"][gri.best_index_] / np.sqrt(n_splits)
         std_param = np.std(gri.cv_results_["mean_test_score"]) / gri.best_score_ * 100
-        print("gridsearch best score %.2f +/-%.1f  (var selon param %.2f%%)" % (gri.best_score_, std_best, std_param))
+        print("gridsearch best score %.2f +/-%.2f  (var selon param %.2f%%)" % (gri.best_score_ * 100, std_best * 100,
+                                                                                std_param))
         print("gridsearch time %.1f" % (time() - t0))
         
         test_score = pipe.score(X_test, y_test)
@@ -70,7 +71,7 @@ def eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test, n_splits):
         # plt.errorbar(range(len(r["mean_test_score"])), r["mean_test_score"], yerr=2*r["std_test_score"])
         # plt.show()
         
-        print("\n\n")add 
+        print("\n\n")
 
 
 def make_pipe(n_splits):
@@ -86,7 +87,7 @@ def make_pipe(n_splits):
         # ('pca', PCA(15)),
         ('gri', GridSearchCV(Pipeline([  #('pca', None),
             ('clf', None)]),
-            scoring=AMS, refit=True, cv=n_splits, iid=True, return_train_score=False, param_grid={})),
+            scoring='accuracy', refit=True, cv=n_splits, iid=True, return_train_score=False, param_grid={})),
     ], memory=mem, verbose=0)
     
     param_grid = [
@@ -94,20 +95,20 @@ def make_pipe(n_splits):
             # 'pca': (None, PCA(15)),
             'clf': (SVC(gamma="auto", max_iter=100000),),
             'clf__kernel': ("poly", "rbf"),
-            'clf__C': np.logspace(-2, .5, num=3),
+            'clf__C': np.logspace(-2, .5, num=5),
         },
         {
             'clf': (BaggingClassifier(Perceptron(max_iter=1000), max_samples=0.5, max_features=0.5),),
-            'clf__n_estimators': (1000,),
+            'clf__n_estimators': (500, 1000, 2000,),
         },
         {
             'clf': (RandomForestClassifier(),),
-            'clf__n_estimators': (1000,),
-            'clf__max_depth': (None, 50),
+            'clf__n_estimators': (500, 1000, 2000, ),
+            'clf__max_depth': (None, 20, 50),
         },
         {
             'clf': (AdaBoostClassifier(),),
-            'clf__n_estimators': (1000,),
+            'clf__n_estimators': (500, 1000, 2000,),
         },
     ]
     
@@ -125,12 +126,12 @@ def make_pipe_nan(n_splits):
         ('sca', StandardScaler()),
         ('imp', SimpleImputer(missing_values=np.nan, fill_value=-999999.0)),
         ('gri', GridSearchCV(Pipeline([('clf', RandomForestClassifier())]),
-                             scoring=AMS, refit=True, cv=n_splits, iid=True, return_train_score=False, param_grid={})),
+                             scoring='accuracy', refit=True, cv=n_splits, iid=True, return_train_score=False, param_grid={})),
     ], memory=mem, verbose=0)
     
     param_nan = [{
-        'clf__n_estimators': (1000, 2000),
-        'clf__max_depth': (20, None),
+        'clf__n_estimators': (500, 1000, 2000,),
+        'clf__max_depth': (20, 50, None),
     }]
     
     return pipe_nan, param_nan
@@ -156,8 +157,8 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=n_test)
     
     n_splits = 3
-    # pipe, pipe_param = make_pipe(n_splits)
-    pipe, pipe_param = make_pipe_nan(n_splits)
+    pipe, pipe_param = make_pipe(n_splits)
+    # pipe, pipe_param = make_pipe_nan(n_splits)
     eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test, n_splits=n_splits)
     
 

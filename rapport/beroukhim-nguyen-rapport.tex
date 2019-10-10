@@ -307,6 +307,16 @@ valeur (nous sommes dans un contexte \emph{Missing Not At Random}). Un modèle
 entraîné sur le dataset restreint en faisant l’hypothèse "i.i.d." serait donc
 biaisé.
 
+\subsubsection{Omission d'attributs}
+
+Une autre méthode consiste à \textbf{supprimer les features dont le pourcentage
+de valeurs manquantes dépasse un certain seuil}. On \textbf{retire ensuite les
+évènements à valeurs manquantes}. Le dataset final ne contient donc plus aucune
+donnée manquante. En fixant le seuil à 40\%, notre jeu de données passe de
+818238 à 693636 échantillons, soit 85\% des données initiales, et de 35 à 20
+attributs.
+
+
 \subsubsection{Conservation}
 
 Les \textbf{\emph{Random Forest}} font partie des algorithmes permettant de
@@ -325,11 +335,16 @@ scikit-learn, qui complète de manière itérative les données manquantes en
 utilisant des modèles de régression prédisant la valeur d’une variable à partir
 de la valeur des autres variables. \\
 
-En pratique, nous appliquons d'abord les \textbf{log-transformations} puis nous
-réalisons l’\textbf{imputing} avant de finir par \textbf{scaler} les données. Ce
-choix se justifie premièrement par l’intuition que l’imputing fonctionnera mieux
-sur des données log-transformées et, deuxièmement, par le fait qu’estimer la
-moyenne et la variance en ignorant les données manquantes serait biaisé.
+En pratique et comme nous souhaitons conserver le maximum d'information,
+\textbf{nous ne supprimerons ni d'évènements ni d'attributs à valeurs
+manquantes}. Nous testerons, d'un côté, des \textbf{algorithmes permettant de
+gérer les données manquantes} et, de l'autre, la méthode de \textbf{complétion
+des données}. Pour cette dernière, nous appliquons d'abord les
+\textbf{log-transformations} puis nous réalisons l’\textbf{imputing} avant de
+finir par \textbf{scaler} les données. Ce choix se justifie premièrement par
+l’intuition que l’imputing fonctionnera mieux sur des données log-transformées
+et, deuxièmement, par le fait qu’estimer la moyenne et la variance en ignorant
+les données manquantes serait biaisé.
 
 \subsection{Sélection de features}
 
@@ -345,12 +360,14 @@ Principales} (PCA)} afin de réduire le nombre de données explicatives.
 
 \begin{figure}[H]
     \center
-    \includegraphics[width=0.6\textwidth]{images/correlation_matrix.png}
+    \includegraphics[width=0.7\textwidth]{images/correlation_matrix.png}
     \caption{Matrice de corrélation entre chaque attribut}
     \label{img:corr-mat}
 \end{figure}
 
 \section{Classification des évènements}
+
+\subsection{Modèles utilisés}
 
 Nous considérons plusieurs modèles d'apprentissage pour classifier les
 évènements :
@@ -358,8 +375,65 @@ Nous considérons plusieurs modèles d'apprentissage pour classifier les
 \begin{itemize}
     \item SVM
     \item méthodes ensemblistes : Bagging de Perceptron, Random Forest, AdaBoost
-        \\
 \end{itemize}
+
+\subsubsection{Support Vector Machines}
+
+Les \emph{Support Vector Machines} (SVMs) nous fournissent une
+\textbf{\emph{baseline}}. Généralisation des classifieurs linéaires, ils
+nécessitent un \textbf{faible nombre d'hyperpararamètres}, ont des
+\textbf{garanties théoriques} et donnent de \textbf{bons résultats} en pratique.
+
+\subsubsection{Méthodes d'ensemble}
+
+Afin de \textbf{réduire de réduire le biais et la variance} de nos modèles et
+ainsi améliorer les performances, nous utilisons des \textbf{méthodes
+d'ensemble}. Ces algorithmes consistent à \textbf{combiner plusieurs classifieurs
+faibles} pour obtenir un modèle \textbf{plus stable, plus robuste et ayant une meilleure
+capacité de généralisation}. \\
+
+\textbf{Bootstrap AGGregatING (Bagging). } \quad Le \emph{Boostrap
+Aggregating} est une méthode pour \textbf{réduire la variance par moyennage}.
+Plusieurs ensembles d'apprentissage sont simulés par \textbf{\emph{boostrap} (tirage
+avec remise)} puis \textbf{un classifieur faible est appris par ensemble
+(\emph{bagging})}. Dans notre contexte de classification binaire, le vote
+majoritaire donne la prédiction du modèle.
+
+Comme chaque classifieur faible est entraîné sur des données légèrement
+différentes, le modèle d'ensemble est capable de \textbf{capturer de petites
+variations dans les données} et donc de mieux \textbf{généraliser}. 
+
+Nous choisissons, uniquement pour le Bagging, le \textbf{Perceptron} comme
+classifieur faible. Il s'agit d'un \textbf{modèle instable}, ce qui permet
+d'obtenir un \textbf{ensemble de classifieurs suffisamment différents}. \\
+
+\textbf{Random Forest. } \quad Même si chaque arbre de décision obtenu par
+Bagging est appris sur un jeu de données légèrement différent, les données sont
+partitionnées en fonction des mêmes attributs par chaque modèle : les arbres
+générés sont donc \textbf{trop similaires}. Pour pallier à ce problème, les
+arbres des \textbf{forêts aléatoires (\emph{random forests})}, également appris
+sur des boostraps de l'ensemble original, \textbf{sélectionnent à chaque split
+un échantillon aléatoire de features}, ce qui \textbf{force les modèles à être
+différents} et évite de se concentrer sur des attributs particuliers. \\
+
+\textbf{AdaBoost. } \quad Avec la technique de Bagging, les classifieurs faibles
+sont appris indépendamment les uns des autres. Or, si ce classifieur est, à lui
+seul, trop faible, \textbf{le Bagging ne permettra pas d'obtenir un meilleur
+biais}. Le \textbf{\emph{Boosting}} permet de traiter ce problème par
+\textbf{apprentissage successif de classifieurs faibles} : en donnant plus de
+poids aux exemples mal classés par les modèles précédents, \textbf{chaque nouveau
+classifieur se focalise sur les parties de l'espace mal prédites}. Contrairement
+au Bagging, la contribution d'un classifieur à la prédiction du modèle
+d'ensemble est déterminée par sa performance.
+
+En revanche, si le classifieur faible est trop complexe, le modèle de Boosting
+\textbf{risque de sur-apprendre}, auquel cas la technique de Bagging est plus
+adaptée.\\
+
+\subsection{Protocole d'expérimentation}
+
+Avant d'entraîner nos modèles, nous pré-traitons nos données tel que décrit
+précédemment (log-transformation, imputing et scaling). \\
 
 Par souci de temps de calcul, les expériences sont menées sur le
 dataset restreint à 10000 évènements. 70\% de cette base est dédiée à
@@ -372,7 +446,51 @@ d'apprentissage. Nous récupérons le classifieur ayant produit le meilleur
 résultat et l'évaluons sur les données de test. La seule métrique
 utilisée est l'AMS. 
 
+\subsection{Résultats et analyse}
 
+\begin{table}[H]
+\centering
+\resizebox{0.25\textwidth}{!}{
+\begin{tabular}{c|c}
+    $C$ & Noyau\\
+    \hline
+    3.16 & rbf \\
+\end{tabular}}
+\caption{Paramètres optimaux pour le SVM (accuracy, $n=1000$)}
+\end{table}
+
+\begin{table}[H]
+\centering
+\resizebox{0.8\textwidth}{!}{
+\begin{tabular}{c|c|c|c|c}
+    & Bagging & RF & RFNan & AdaBoost \\
+    \hline
+    Profondeur maximale & & 50 & $\inf$ &  \\
+    Nombre d'estimateurs  & 500 & 500 & 500 & 1000\\
+\end{tabular}}
+\caption{Paramètres optimaux pour les méthodes d'ensemble (accuracy, $n=1000$)}
+\end{table}
+
+
+\begin{table}[H]
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{c|*{3}{c|}c}
+            \multirow{2}{*}{} &
+            \multicolumn{2}{c|}{Accuracy} &
+            \multicolumn{2}{c}{AMS}\\ \cline{2-3} \cline{4-5}
+            & Apprentissage & Test & Apprentissage & Test \\
+            \hline
+            SVM & $75.20 \pm 1.55$ \% & & & \\
+            Bagging & $73.30 \pm 1.24$ \% & & & \\ 
+            RFNan & $81.70 \pm 0.17$ \% & & & \\
+            RF & $80.20 \pm 0.50$ \% & & & \\
+            AdaBoost & $74.30 \pm0.79$ \% & & &\\
+        \end{tabular}}
+    \caption{Performances obtenues par chaque méthode}
+    \label{tab:ensemble-results}
+\end{table}
+
+\todo[inline, color=yellow!40]{Tableaux, graphiques, courbe ROC}
 
 
 \newpage

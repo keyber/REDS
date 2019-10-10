@@ -1,0 +1,15 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Analyse préliminaire des données}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Distribution\040des\040variables}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Valeurs\040manquantes}{section.2}% 4
+\BOOKMARK [3][-]{subsubsection.2.2.1}{Omission}{subsection.2.2}% 5
+\BOOKMARK [3][-]{subsubsection.2.2.2}{Omission\040d'attributs}{subsection.2.2}% 6
+\BOOKMARK [3][-]{subsubsection.2.2.3}{Conservation}{subsection.2.2}% 7
+\BOOKMARK [3][-]{subsubsection.2.2.4}{Affectation\040\(Imputing\)}{subsection.2.2}% 8
+\BOOKMARK [2][-]{subsection.2.3}{Sélection de features}{section.2}% 9
+\BOOKMARK [1][-]{section.3}{Classification des évènements}{}% 10
+\BOOKMARK [2][-]{subsection.3.1}{Modèles utilisés}{section.3}% 11
+\BOOKMARK [3][-]{subsubsection.3.1.1}{Support\040Vector\040Machines}{subsection.3.1}% 12
+\BOOKMARK [3][-]{subsubsection.3.1.2}{Méthodes d'ensemble}{subsection.3.1}% 13
+\BOOKMARK [2][-]{subsection.3.2}{Protocole d'expérimentation}{section.3}% 14
+\BOOKMARK [2][-]{subsection.3.3}{Résultats et analyse}{section.3}% 15

@@ -44,10 +44,10 @@
   <internal package="biblatex" priority="9" active="0">
     <generic>latex</generic>
     <provides type="dynamic">
-      <file>rapport.bcf</file>
+      <file>beroukhim-nguyen-rapport.bcf</file>
     </provides>
     <requires type="dynamic">
-      <file>rapport.bbl</file>
+      <file>beroukhim-nguyen-rapport.bbl</file>
     </requires>
     <requires type="static">
       <file>blx-dm.def</file>
@@ -65,19 +65,19 @@
     <generic>biber</generic>
     <cmdline>
       <binary>biber</binary>
-      <infile>rapport</infile>
+      <infile>beroukhim-nguyen-rapport</infile>
     </cmdline>
     <input>
-      <file>rapport.bcf</file>
+      <file>beroukhim-nguyen-rapport.bcf</file>
     </input>
     <output>
-      <file>rapport.bbl</file>
+      <file>beroukhim-nguyen-rapport.bbl</file>
     </output>
     <provides type="dynamic">
-      <file>rapport.bbl</file>
+      <file>beroukhim-nguyen-rapport.bbl</file>
     </provides>
     <requires type="dynamic">
-      <file>rapport.bcf</file>
+      <file>beroukhim-nguyen-rapport.bcf</file>
     </requires>
     <requires type="editable">
       <file>references.bib</file>
