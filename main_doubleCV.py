@@ -1,26 +1,25 @@
 import numpy as np
 import pandas as pd
+from sklearn.compose import make_column_transformer
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 # noinspection PyUnresolvedReferences
 from sklearn.experimental import enable_iterative_imputer  # noqa
 # noinspection PyUnresolvedReferences
 from sklearn.impute import SimpleImputer, IterativeImputer
-from sklearn.utils import shuffle
-from sklearn.compose import make_column_transformer
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, AdaBoostClassifier
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import Perceptron#, BayesianRidge
-from sklearn.base import BaseEstimator, TransformerMixin
 from time import time
+from sklearn.base import BaseEstimator, TransformerMixin
 from AMS import AMS
 import matplotlib.pyplot as plt
+
 import tempfile
 from joblib import Memory
 
-seed = 3
 
 class Shift_log(BaseEstimator, TransformerMixin):
     def __init__(self):
@@ -70,10 +69,10 @@ def eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test, n_splits):
         # plt.errorbar(range(len(r["mean_test_score"])), r["mean_test_score"], yerr=2*r["std_test_score"])
         # plt.show()
         
-        print("\n\n")add 
+        print("\n\n")
 
 
-def make_pipe(n_splits):
+def make_pipe():
     cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
                 "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
     
@@ -86,7 +85,7 @@ def make_pipe(n_splits):
         # ('pca', PCA(15)),
         ('gri', GridSearchCV(Pipeline([  #('pca', None),
             ('clf', None)]),
-            scoring=AMS, refit=True, cv=n_splits, iid=True, return_train_score=False, param_grid={})),
+            scoring=AMS, refit=True, cv=5, iid=True, return_train_score=False, param_grid={})),
     ], memory=mem, verbose=0)
     
     param_grid = [
@@ -114,7 +113,7 @@ def make_pipe(n_splits):
     return pipe_imputed_fast, param_grid
 
 
-def make_pipe_nan(n_splits):
+def make_pipe_nan():
     cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
                 "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
     
@@ -125,23 +124,21 @@ def make_pipe_nan(n_splits):
         ('sca', StandardScaler()),
         ('imp', SimpleImputer(missing_values=np.nan, fill_value=-999999.0)),
         ('gri', GridSearchCV(Pipeline([('clf', RandomForestClassifier())]),
-                             scoring=AMS, refit=True, cv=n_splits, iid=True, return_train_score=False, param_grid={})),
+                             scoring=AMS, refit=True, cv=5, iid=True, return_train_score=False, param_grid={})),
     ], memory=mem, verbose=0)
     
     param_nan = [{
-        'clf__n_estimators': (1000, 2000),
-        'clf__max_depth': (20, None),
+        'clf__n_estimators': (1000,),
+        'clf__max_depth': (20, ),
     }]
     
     return pipe_nan, param_nan
 
 
 def main():
-    n_train = 1000
-    n_test = 1000
     t0 = time()
-    data = shuffle(pd.read_csv('data.csv'), random_state=seed)[:n_train + n_test]
-    
+    data = pd.read_csv('data.csv')[:100]
+
     # seriesObj = data.apply(lambda x_: -999.0 in list(x_), axis=1)
     # data = data[seriesObj == False][:1000]
     # assert len(data)==1000
@@ -153,12 +150,11 @@ def main():
     
     # x = x.replace(-999, np.nan)
     
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=n_test)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=.3)
     
-    n_splits = 3
-    # pipe, pipe_param = make_pipe(n_splits)
-    pipe, pipe_param = make_pipe_nan(n_splits)
-    eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test, n_splits=n_splits)
+    # pipe, pipe_param = make_pipe()
+    pipe, pipe_param = make_pipe_nan()
+    eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test)
     
 
     print("temps total", time() - t0)
