@@ -1,30 +1,31 @@
 import numpy as np
 import pandas as pd
-from sklearn.compose import make_column_transformer
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
 # noinspection PyUnresolvedReferences
 from sklearn.experimental import enable_iterative_imputer  # noqa
 # noinspection PyUnresolvedReferences
 from sklearn.impute import SimpleImputer, IterativeImputer
+from sklearn.utils import shuffle
+from sklearn.compose import make_column_transformer
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, AdaBoostClassifier
 from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.linear_model import Perceptron#, BayesianRidge
-from time import time
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
+from sklearn.linear_model import Perceptron  #, BayesianRidge
 from sklearn.base import BaseEstimator, TransformerMixin
+from time import time
 from AMS import AMS
 import matplotlib.pyplot as plt
-
 import tempfile
 from joblib import Memory
 
+seed = 0
 
 class Shift_log(BaseEstimator, TransformerMixin):
     def __init__(self):
         self.shift = None
-
+    
     # noinspection PyUnusedLocal
     def fit(self, x, y=None):
         self.shift = 1 - np.nanmin(x, axis=0)
@@ -34,26 +35,24 @@ class Shift_log(BaseEstimator, TransformerMixin):
     def transform(self, x):
         return np.log(x + self.shift)
 
-def eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test, n_splits):
-    for p in pipe_param:
+def grid_search(param, X_train, y_train, n_splits):
+    pipe = Pipeline([('clf', None)])
+    
+    for p in param:
         t0 = time()
-        gri = pipe.named_steps['gri']
-        gri.param_grid = p
+        gri = GridSearchCV(pipe, param_grid=p, scoring=AMS, cv=n_splits, iid=True, refit=False,
+                          return_train_score=False)
         
-        pipe.fit(X_train, y_train)
+        gri.fit(X_train, y_train)
         
         std_best = gri.cv_results_["std_test_score"][gri.best_index_] / np.sqrt(n_splits)
         std_param = np.std(gri.cv_results_["mean_test_score"]) / gri.best_score_ * 100
         print("gridsearch best score %.2f +/-%.1f  (var selon param %.2f%%)" % (gri.best_score_, std_best, std_param))
         print("gridsearch time %.1f" % (time() - t0))
         
-        test_score = pipe.score(X_test, y_test)
-        print("test_score %.2f" % test_score)
-        
         print("Best parameters set:")
-        best_parameters = gri.best_estimator_.get_params()
-        
-        if type(p) is list :
+        best_parameters = gri.best_params_#.get_params()
+        if type(p) is list:
             params_defined_by_hand = set().union(*[list(p.keys()) for p in gri.param_grid])
         else:
             params_defined_by_hand = set(p.keys())
@@ -61,36 +60,16 @@ def eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test, n_splits):
         for param_name in best_parameters:
             if param_name in params_defined_by_hand:
                 val = best_parameters[param_name]
-                if param_name=="clf":
+                if param_name == "clf":
                     val = type(val)
                 print("\t%s: %r" % (param_name, val))
-        
-        # plt.errorbar(range(len(r["mean_train_score"])), r["mean_train_score"], yerr=2*r["std_train_score"])
-        # plt.errorbar(range(len(r["mean_test_score"])), r["mean_test_score"], yerr=2*r["std_test_score"])
-        # plt.show()
         
         print("\n\n")
 
 
-def make_pipe():
-    cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
-                "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
-    
-    mem = Memory(location=tempfile.mkdtemp(), verbose=0)
-    
-    pipe_imputed_fast = Pipeline([
-        ('col', make_column_transformer((Shift_log(), cols_log), remainder="passthrough")),
-        ('imp', IterativeImputer(max_iter=int(1e2))),
-        ('sca', StandardScaler()),
-        # ('pca', PCA(15)),
-        ('gri', GridSearchCV(Pipeline([  #('pca', None),
-            ('clf', None)]),
-            scoring=AMS, refit=True, cv=5, iid=True, return_train_score=False, param_grid={})),
-    ], memory=mem, verbose=0)
-    
+def main_get_best_hyperparam(x, y, n_splits):
     param_grid = [
         {
-            # 'pca': (None, PCA(15)),
             'clf': (SVC(gamma="auto", max_iter=100000),),
             'clf__kernel': ("poly", "rbf"),
             'clf__C': np.logspace(-2, .5, num=3),
@@ -110,55 +89,54 @@ def make_pipe():
         },
     ]
     
-    return pipe_imputed_fast, param_grid
+    grid_search(param_grid, x, y, n_splits)
+    
 
-
-def make_pipe_nan():
-    cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
-                "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
+def main_eval_model(x, y, n_splits):
+    clfs = [
+        ("svc", SVC(C=3.16, kernel="rbf", max_iter=100000, gamma="auto",)),
+        ("bag", BaggingClassifier(Perceptron(max_iter=1000), n_estimators=1000, max_samples=0.5, max_features=0.5)),
+        ("rfc", RandomForestClassifier(n_estimators=1000, max_depth=50)),
+        ("ada", AdaBoostClassifier(n_estimators=1000)),
+    ]
     
-    mem = Memory(location=tempfile.mkdtemp(), verbose=0)
-    
-    pipe_nan = Pipeline([
-        ('col', make_column_transformer((Shift_log(), cols_log), remainder="passthrough")),
-        ('sca', StandardScaler()),
-        ('imp', SimpleImputer(missing_values=np.nan, fill_value=-999999.0)),
-        ('gri', GridSearchCV(Pipeline([('clf', RandomForestClassifier())]),
-                             scoring=AMS, refit=True, cv=5, iid=True, return_train_score=False, param_grid={})),
-    ], memory=mem, verbose=0)
-    
-    param_nan = [{
-        'clf__n_estimators': (1000,),
-        'clf__max_depth': (20, ),
-    }]
-    
-    return pipe_nan, param_nan
-
+    for name, clf in clfs:
+        t0 = time()
+        res = cross_val_score(clf, x, y, cv=n_splits, scoring=AMS)
+        print(name, "%.2f, +/- %.1f (%.0f)" % (np.mean(res), np.std(res) / np.sqrt(n_splits), time() - t0))
 
 def main():
+    # read
+    n_train = 1000
+    n_test = 1000
+    RFnan = True
     t0 = time()
-    data = pd.read_csv('data.csv')[:100]
-
-    # seriesObj = data.apply(lambda x_: -999.0 in list(x_), axis=1)
-    # data = data[seriesObj == False][:1000]
-    # assert len(data)==1000
-    
+    data = shuffle(pd.read_csv('data.csv'), random_state=seed)[:n_train + n_test]
     y = data['Label']
     y = np.where(y == 's', 1, 0)
-    
     x = data.drop(columns=['Label', "KaggleSet", "Weight", "KaggleWeight", "EventId"])
+    x = x.replace(-999, np.nan)
     
-    # x = x.replace(-999, np.nan)
+    # preprocess
+    cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
+                "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
+    x = make_column_transformer((Shift_log(), cols_log), remainder="passthrough").fit_transform(x)
+    if RFnan:
+        x = StandardScaler().fit_transform(x)
+        x = SimpleImputer(missing_values=np.nan, fill_value=-999999.0).fit_transform(x)
+    else:
+        x = IterativeImputer(max_iter=int(1e2)).fit_transform(x)
+        x = StandardScaler().fit_transform(x)
+        x = PCA(15).fit_transform(x)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=n_test)
     
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=.3)
+    # eval
+    # main_get_best_hyperparam(X_train, y_train, n_splits=3)
+    main_eval_model(X_train, y_train, n_splits=3)
     
-    # pipe, pipe_param = make_pipe()
-    pipe, pipe_param = make_pipe_nan()
-    eval_pipe(pipe, pipe_param, X_train, X_test, y_train, y_test)
     
-
     print("temps total", time() - t0)
-    
+
 
 if __name__ == '__main__':
     # import warnings
