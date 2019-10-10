@@ -465,7 +465,7 @@ utilisée est l'AMS.
 \begin{tabular}{c|c|c|c|c}
     & Bagging & RF & RFNan & AdaBoost \\
     \hline
-    Profondeur maximale & & 50 & $\inf$ &  \\
+    Profondeur maximale &\cellcolor{gray!40} & 50 & $\inf$ & \cellcolor{gray!40}\\
     Nombre d'estimateurs  & 500 & 500 & 500 & 1000\\
 \end{tabular}}
 \caption{Paramètres optimaux pour les méthodes d'ensemble (accuracy, $n=1000$)}
@@ -480,11 +480,11 @@ utilisée est l'AMS.
             \multicolumn{2}{c}{AMS}\\ \cline{2-3} \cline{4-5}
             & Apprentissage & Test & Apprentissage & Test \\
             \hline
-            SVM & $75.20 \pm 1.55$ \% & & & \\
-            Bagging & $73.30 \pm 1.24$ \% & & & \\ 
-            RFNan & $81.70 \pm 0.17$ \% & & & \\
-            RF & $80.20 \pm 0.50$ \% & & & \\
-            AdaBoost & $74.30 \pm0.79$ \% & & &\\
+            SVM & $75.20 \pm 1.55$ \% & $75.30 \pm 0.42$ \%& & \\
+            Bagging & $73.30 \pm 1.24$ \% & $71.80 \pm 0.71$ \% & & \\ 
+            RFNan & $81.70 \pm 0.17$ \% & $81.40 \pm 0.82$ \%& & \\
+            RF & $80.20 \pm 0.50$ \% & $80.70 \pm 0.62 $\% & & \\
+            AdaBoost & $74.30 \pm0.79$ \% & $74.50 \pm 0.58$ \%& &\\
         \end{tabular}}
     \caption{Performances obtenues par chaque méthode}
     \label{tab:ensemble-results}

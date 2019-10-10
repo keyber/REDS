@@ -95,15 +95,22 @@ def main_get_best_hyperparam(x, y, n_splits):
 def main_eval_model(x, y, n_splits):
     clfs = [
         ("svc", SVC(C=3.16, kernel="rbf", max_iter=100000, gamma="auto",)),
-        ("bag", BaggingClassifier(Perceptron(max_iter=1000), n_estimators=1000, max_samples=0.5, max_features=0.5)),
-        ("rfc", RandomForestClassifier(n_estimators=1000, max_depth=50)),
+        ("bag", BaggingClassifier(Perceptron(max_iter=1000), n_estimators=500, max_samples=0.5, max_features=0.5)),
+        ("rfc", RandomForestClassifier(n_estimators=500, max_depth=50)),
         ("ada", AdaBoostClassifier(n_estimators=1000)),
     ]
     
     for name, clf in clfs:
         t0 = time()
-        res = cross_val_score(clf, x, y, cv=n_splits, scoring=AMS)
-        print(name, "%.2f, +/- %.1f (%.0f)" % (np.mean(res), np.std(res) / np.sqrt(n_splits), time() - t0))
+        res = cross_val_score(clf, x, y, cv=n_splits, scoring='accuracy')
+        print(name, "%.2f, +/- %.2f (%.0f)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
+
+
+def main_eval_model_nan(x, y, n_splits):
+    clf = RandomForestClassifier(n_estimators=500, max_depth=None)
+    t0 = time()
+    res = cross_val_score(clf, x, y, cv=n_splits, scoring='accuracy')
+    print("rfnan : %.2f, +/- %.2f (%.0f)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
 
 def main():
     # read
@@ -127,12 +134,15 @@ def main():
     else:
         x = IterativeImputer(max_iter=int(1e2)).fit_transform(x)
         x = StandardScaler().fit_transform(x)
-        x = PCA(15).fit_transform(x)
+        #x = PCA(15).fit_transform(x)
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=n_test)
     
     # eval
     # main_get_best_hyperparam(X_train, y_train, n_splits=3)
-    main_eval_model(X_train, y_train, n_splits=3)
+    if RFnan:
+        main_eval_model_nan(X_train, y_train, n_splits=3)
+    else:
+        main_eval_model(X_train, y_train, n_splits=3)
     
     
     print("temps total", time() - t0)
