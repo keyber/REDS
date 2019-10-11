@@ -392,12 +392,12 @@ d'ensemble}. Ces algorithmes consistent à \textbf{combiner plusieurs classifieu
 faibles} pour obtenir un modèle \textbf{plus stable, plus robuste et ayant une meilleure
 capacité de généralisation}. \\
 
-\textbf{Bootstrap AGGregatING (Bagging). } \quad Le \emph{Boostrap
+\textbf{Bootstrap AGGregatING (Bagging). } \quad Le \emph{Bootstrap
 Aggregating} est une méthode pour \textbf{réduire la variance par moyennage}.
-Plusieurs ensembles d'apprentissage sont simulés par \textbf{\emph{boostrap} (tirage
-avec remise)} puis \textbf{un classifieur faible est appris par ensemble
-(\emph{bagging})}. Dans notre contexte de classification binaire, le vote
-majoritaire donne la prédiction du modèle.
+Plusieurs ensembles d'apprentissage sont simulés par \textbf{\emph{bootstrap} (tirage
+avec remise)} puis \textbf{sur chaque sous ensemble, on entraîne un classifieur faible}.
+Dans notre contexte de classification binaire, la prédiction du modèle
+est définie par le \textbf{vote majoritaire des modèles simples (\emph{bagging})} .
 
 Comme chaque classifieur faible est entraîné sur des données légèrement
 différentes, le modèle d'ensemble est capable de \textbf{capturer de petites
@@ -407,14 +407,14 @@ Nous choisissons, uniquement pour le Bagging, le \textbf{Perceptron} comme
 classifieur faible. Il s'agit d'un \textbf{modèle instable}, ce qui permet
 d'obtenir un \textbf{ensemble de classifieurs suffisamment différents}. \\
 
-\textbf{Random Forest. } \quad Même si chaque arbre de décision obtenu par
-Bagging est appris sur un jeu de données légèrement différent, les données sont
-partitionnées en fonction des mêmes attributs par chaque modèle : les arbres
-générés sont donc \textbf{trop similaires}. Pour pallier à ce problème, les
+\textbf{Random Forest. } \quad Avec la technique du Bagging, même si chaque classifieur
+est appris sur un jeu de données légèrement différent, tous les modèles se servent des
+mêmes attributs pour partitionner les données, les arbres générés
+risquent donc d'être \textbf{trop similaires}. Pour pallier à ce problème, les
 arbres des \textbf{forêts aléatoires (\emph{random forests})}, également appris
-sur des boostraps de l'ensemble original, \textbf{sélectionnent à chaque split
+sur des bootstrap de l'ensemble original, \textbf{sélectionnent pour chaque sous ensemble
 un échantillon aléatoire de features}, ce qui \textbf{force les modèles à être
-différents} et évite de se concentrer sur des attributs particuliers. \\
+différents} et empêche le modèle global de se concentrer sur des attributs particuliers. \\
 
 \textbf{AdaBoost. } \quad Avec la technique de Bagging, les classifieurs faibles
 sont appris indépendamment les uns des autres. Or, si ce classifieur est, à lui
@@ -432,7 +432,8 @@ adaptée.\\
 
 \subsection{Protocole d'expérimentation}
 
-Avant d'entraîner nos modèles, nous pré-traitons nos données tel que décrit
+
+Avant d'entraîner nos modèles, nous pré-traitons l'ensemble de nos données tel que décrit
 précédemment (log-transformation, imputing et scaling). \\
 
 Par souci de temps de calcul, les expériences sont menées sur le
