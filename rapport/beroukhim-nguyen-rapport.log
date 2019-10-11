@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017) (preloaded format=xelatex 2018.2.24)  10 OCT 2019 19:18
+This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017) (preloaded format=xelatex 2018.2.24)  11 OCT 2019 17:29
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2015,27 +2015,27 @@ Underfull \hbox (badness 10000) in paragraph at lines 429--432
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 435--437
+Underfull \hbox (badness 10000) in paragraph at lines 436--438
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 438--441
+Underfull \hbox (badness 10000) in paragraph at lines 439--442
 
  []
 
 [5]
 Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
-ine 493.
+ine 494.
  [6]
 
-LaTeX Warning: Empty bibliography on input line 497.
+LaTeX Warning: Empty bibliography on input line 498.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 498.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 498.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 499.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 499.
 (./beroukhim-nguyen-rapport.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 498.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 498.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 499.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 499.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
