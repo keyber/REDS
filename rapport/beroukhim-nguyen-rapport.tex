@@ -392,12 +392,13 @@ d'ensemble}. Ces algorithmes consistent à \textbf{combiner plusieurs classifieu
 faibles} pour obtenir un modèle \textbf{plus stable, plus robuste et ayant une meilleure
 capacité de généralisation}. \\
 
-\textbf{Bootstrap AGGregatING (Bagging). } \quad Le \emph{Bootstrap
-Aggregating} est une méthode pour \textbf{réduire la variance par moyennage}.
-Plusieurs ensembles d'apprentissage sont simulés par \textbf{\emph{bootstrap} (tirage
-avec remise)} puis \textbf{sur chaque sous ensemble, on entraîne un classifieur faible}.
-Dans notre contexte de classification binaire, la prédiction du modèle
-est définie par le \textbf{vote majoritaire des modèles simples (\emph{bagging})} .
+\textbf{Bootstrap AGGregatING (Bagging). } \quad Le \emph{Bootstrap Aggregating}
+est une méthode pour \textbf{réduire la variance par moyennage}.  Plusieurs
+ensembles d'apprentissage sont simulés par \textbf{\emph{bootstrap} (tirage avec
+remise)} puis \textbf{sur chaque sous ensemble, on entraîne un classifieur
+faible}.  Dans notre contexte de classification binaire, la prédiction du modèle
+est définie par le \textbf{vote majoritaire des modèles simples
+(\emph{bagging})} .
 
 Comme chaque classifieur faible est entraîné sur des données légèrement
 différentes, le modèle d'ensemble est capable de \textbf{capturer de petites
@@ -407,24 +408,25 @@ Nous choisissons, uniquement pour le Bagging, le \textbf{Perceptron} comme
 classifieur faible. Il s'agit d'un \textbf{modèle instable}, ce qui permet
 d'obtenir un \textbf{ensemble de classifieurs suffisamment différents}. \\
 
-\textbf{Random Forest. } \quad Avec la technique du Bagging, même si chaque classifieur
-est appris sur un jeu de données légèrement différent, tous les modèles se servent des
-mêmes attributs pour partitionner les données, les arbres générés
-risquent donc d'être \textbf{trop similaires}. Pour pallier à ce problème, les
-arbres des \textbf{forêts aléatoires (\emph{random forests})}, également appris
-sur des bootstrap de l'ensemble original, \textbf{sélectionnent pour chaque sous ensemble
-un échantillon aléatoire de features}, ce qui \textbf{force les modèles à être
-différents} et empêche le modèle global de se concentrer sur des attributs particuliers. \\
+\textbf{Random Forest. } \quad Avec la technique du Bagging, même si chaque
+classifieur est appris sur un jeu de données légèrement différent, tous les
+modèles se servent des mêmes attributs pour partitionner les données, les arbres
+générés risquent donc d'être \textbf{trop similaires}. Pour pallier à ce
+problème, les arbres des \textbf{forêts aléatoires (\emph{random forests})},
+également appris sur des bootstrap de l'ensemble original, \textbf{sélectionnent
+pour chaque sous ensemble un échantillon aléatoire de features}, ce qui
+\textbf{force les modèles à être différents} et empêche le modèle global de se
+concentrer sur des attributs particuliers. \\
 
 \textbf{AdaBoost. } \quad Avec la technique de Bagging, les classifieurs faibles
 sont appris indépendamment les uns des autres. Or, si ce classifieur est, à lui
 seul, trop faible, \textbf{le Bagging ne permettra pas d'obtenir un meilleur
 biais}. Le \textbf{\emph{Boosting}} permet de traiter ce problème par
 \textbf{apprentissage successif de classifieurs faibles} : en donnant plus de
-poids aux exemples mal classés par les modèles précédents, \textbf{chaque nouveau
-classifieur se focalise sur les parties de l'espace mal prédites}. Contrairement
-au Bagging, la contribution d'un classifieur à la prédiction du modèle
-d'ensemble est déterminée par sa performance.
+poids aux exemples mal classés par les modèles précédents, \textbf{chaque
+nouveau classifieur se focalise sur les parties de l'espace mal prédites}.
+Contrairement au Bagging, la contribution d'un classifieur à la prédiction du
+modèle d'ensemble est déterminée par sa performance.
 
 En revanche, si le classifieur faible est trop complexe, le modèle de Boosting
 \textbf{risque de sur-apprendre}, auquel cas la technique de Bagging est plus
@@ -441,35 +443,49 @@ dataset restreint à 10000 évènements. 70\% de cette base est dédiée à
 l'entraînement et la validation des modèles, 30\% au test.  \\
 
 Pour chaque algorithme, nous procédons par \emph{grid search} pour trouver les
-hyperparamètres optimaux. Pour chaque combinaison d'hyperparamètres, le score de
-prédiction est estimé par \emph{cross-validation} sur l'ensemble
-d'apprentissage. Nous récupérons le classifieur ayant produit le meilleur
-résultat et l'évaluons sur les données de test. La seule métrique
-utilisée est l'AMS. 
+hyperparamètres optimaux. Pour chaque combinaison d'hyperparamètres, la
+performance du modèle produit est estimée par \emph{cross-validation} sur
+l'ensemble d'apprentissage. \\
+
+Nous récupérons les hyperparamètres ayant produit le meilleur résultat et
+calculons le score final par cross-validation sur les données de test. \\
+
+Les métriques utilisées sont le taux de bonne
+classification (\emph{accuracy}) et l'AMS. Les modèles sont optimisés selon
+chaque mesure. 
 
 \subsection{Résultats et analyse}
 
 \begin{table}[H]
 \centering
-\resizebox{0.25\textwidth}{!}{
-\begin{tabular}{c|c}
-    $C$ & Noyau\\
+\resizebox{0.4\textwidth}{!}{
+\begin{tabular}{c|c|c}
+    & $C$ & Noyau\\
     \hline
-    3.16 & rbf \\
+    Accuracy & 3.16 & rbf \\
+    AMS & 1.78 & rbf\\
 \end{tabular}}
-\caption{Paramètres optimaux pour le SVM (accuracy, $n=1000$)}
+\caption{Paramètres optimaux pour le SVM (accuracy, $|X_{train}|=1000$)}
 \end{table}
 
+
 \begin{table}[H]
-\centering
-\resizebox{0.8\textwidth}{!}{
-\begin{tabular}{c|c|c|c|c}
-    & Bagging & RF & RFNan & AdaBoost \\
-    \hline
-    Profondeur maximale &\cellcolor{gray!40} & 50 & $\inf$ & \cellcolor{gray!40}\\
-    Nombre d'estimateurs  & 500 & 500 & 500 & 1000\\
-\end{tabular}}
-\caption{Paramètres optimaux pour les méthodes d'ensemble (accuracy, $n=1000$)}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{c|*{7}{c|}c}
+            \multirow{2}{*}{} &
+            \multicolumn{2}{c|}{Bagging} &
+            \multicolumn{2}{c|}{RF} &
+            \multicolumn{2}{c|}{RFNan} &
+            \multicolumn{2}{c}{AdaBoost}
+            \\ \cline{2-3} \cline{4-5} \cline{6-7} \cline{8-9}
+            & Accuracy & AMS & Accuracy & AMS & Accuracy & AMS & Accuracy & AMS\\
+            \hline
+            Nombre d'estimateurs & 500 & 2000 & 500 & 1000 & 500 & 500 & 1000 & 50 \\
+            Profondeur max & \cellcolor{gray!40} & \cellcolor{gray!40} & 50 & 50 &
+            $\inf$ & $\inf$ & \cellcolor{gray!40} & \cellcolor{gray!40} \\
+        \end{tabular}}
+    \caption{Paramètres optimaux pour les méthodes d'ensemble (accuracy,
+    $|X_{train}|=1000$)}
 \end{table}
 
 
@@ -481,13 +497,18 @@ utilisée est l'AMS.
             \multicolumn{2}{c}{AMS}\\ \cline{2-3} \cline{4-5}
             & Apprentissage & Test & Apprentissage & Test \\
             \hline
-            SVM & $75.20 \pm 1.55$ \% & $75.30 \pm 0.42$ \%& & \\
-            Bagging & $73.30 \pm 1.24$ \% & $71.80 \pm 0.71$ \% & & \\ 
-            RFNan & $81.70 \pm 0.17$ \% & $81.40 \pm 0.82$ \%& & \\
-            RF & $80.20 \pm 0.50$ \% & $80.70 \pm 0.62 $\% & & \\
-            AdaBoost & $74.30 \pm0.79$ \% & $74.50 \pm 0.58$ \%& &\\
+            SVM & $75.20 \pm 1.55$ \% & $75.30 \pm 0.42$ \%& $0.0414 \pm
+            0.0049$ &  $0.0301 \pm 0.0023$\\
+            Bagging & $73.30 \pm 1.24$ \% & $71.80 \pm 0.71$ \% & $0.0290 \pm
+            0.0029$ & $0.0233 \pm 0.0026$\\ 
+            RF & $80.20 \pm 0.50$ \% & $80.70 \pm 0.62 $\% & $0.0510 \pm
+            0.0093$ & $0.0379 \pm 0.0028$\\
+            RFNan & $81.70 \pm 0.17$ \% & $81.40 \pm 0.82$ \%& $0.0514 \pm
+            0.0100$ & $0.0400 \pm 0.0037$\\
+            AdaBoost & $74.30 \pm0.79$ \% & $74.50 \pm 0.58$ \%& $0.0403 \pm
+            0.0035$ & $0.0341 \pm 0.0007$\\
         \end{tabular}}
-    \caption{Performances obtenues par chaque méthode}
+    \caption{Performances obtenues avec chaque méthode $|X_{test}|=1000$)}
     \label{tab:ensemble-results}
 \end{table}
 
