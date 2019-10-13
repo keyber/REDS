@@ -398,7 +398,7 @@ ensembles d'apprentissage sont simulés par \textbf{\emph{bootstrap} (tirage ave
 remise)} puis \textbf{sur chaque sous ensemble, on entraîne un classifieur
 faible}.  Dans notre contexte de classification binaire, la prédiction du modèle
 est définie par le \textbf{vote majoritaire des modèles simples
-(\emph{bagging})} .
+(\emph{aggregating})} .
 
 Comme chaque classifieur faible est entraîné sur des données légèrement
 différentes, le modèle d'ensemble est capable de \textbf{capturer de petites
@@ -414,7 +414,7 @@ modèles se servent des mêmes attributs pour partitionner les données, les arb
 générés risquent donc d'être \textbf{trop similaires}. Pour pallier à ce
 problème, les arbres des \textbf{forêts aléatoires (\emph{random forests})},
 également appris sur des bootstrap de l'ensemble original, \textbf{sélectionnent
-pour chaque sous ensemble un échantillon aléatoire de features}, ce qui
+pour chacun de leurs noeuds un échantillon aléatoire de features}, ce qui
 \textbf{force les modèles à être différents} et empêche le modèle global de se
 concentrer sur des attributs particuliers. \\
 
@@ -433,26 +433,34 @@ En revanche, si le classifieur faible est trop complexe, le modèle de Boosting
 adaptée.\\
 
 \subsection{Protocole d'expérimentation}
-
-
-Avant d'entraîner nos modèles, nous pré-traitons l'ensemble de nos données tel que décrit
-précédemment (log-transformation, imputing et scaling). \\
-
-Par souci de temps de calcul, les expériences sont menées sur le
-dataset restreint à 10000 évènements. 70\% de cette base est dédiée à
-l'entraînement et la validation des modèles, 30\% au test.  \\
+Tout d'abord, nous commençons par séparer le jeu de données en train et en test.
+Avant d'entraîner nos modèles, nous apprenons les paramètres de prétraitement
+des données sur l'ensemble d'apprentissage, et nous appliquons les prétraitements
+sur l'ensemble des données. Les prétraitements et apprentissages des paramètres
+sont effectués dans l'ordre décrit précédemment:
+log-transformation (valeurs minimales des colonnes apprises),
+imputing (paramètres de tous les régresseurs appris)
+et scaling (moyennes et écarts-types des colonnes appris). \\
 
 Pour chaque algorithme, nous procédons par \emph{grid search} pour trouver les
 hyperparamètres optimaux. Pour chaque combinaison d'hyperparamètres, la
 performance du modèle produit est estimée par \emph{cross-validation} sur
 l'ensemble d'apprentissage. \\
 
-Nous récupérons les hyperparamètres ayant produit le meilleur résultat et
+Pour chaque modèle, nous récupérons les hyperparamètres ayant produit le meilleur résultat et
 calculons le score final par cross-validation sur les données de test. \\
 
-Les métriques utilisées sont le taux de bonne
-classification (\emph{accuracy}) et l'AMS. Les modèles sont optimisés selon
-chaque mesure. 
+Par souci de temps de calcul, les expériences de recherche de paramètres optimaux
+et d'évaluation des modèles ne sont pas menées sur le dataset entier.
+Pour les métriques usuelles, le score obtenu par un modèle est indépendant de
+la taille du jeu de test, mais ce n'est pas le cas pour la métrique AMS.
+Afin d'obtenir des scores en AMS comparables,
+on fixe la taille des jeux de tests à 1000 éléments.
+
+Les scores obtenus en AMS étant difficilement interprétables, nous utilisons aussi comme métrique
+le taux de bonne classification (\emph{accuracy}) car cette métrique est facilement interprétable.
+Pour chaque métrique, les scores présentés par la suite sont obtenus en optimisant les modèles
+pour cette métrique.
 
 \subsection{Résultats et analyse}
 
