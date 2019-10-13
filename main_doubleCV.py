@@ -11,11 +11,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, AdaBoostClassifier
 from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, ShuffleSplit
 from sklearn.linear_model import Perceptron  #, BayesianRidge
 from sklearn.base import BaseEstimator, TransformerMixin
 from time import time
-from AMS import AMS
+from AMS import AMS, AMS_v2
+from plot_learning_curve import plot_learning_curve
 import matplotlib.pyplot as plt
 import tempfile
 from joblib import Memory
@@ -112,11 +113,26 @@ def main_eval_model_nan(x, y, n_splits):
     res = cross_val_score(clf, x, y, cv=n_splits, scoring='accuracy')
     print("rfnan : %.2f, +/- %.2f (%.0f)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
 
+def main_learning_curve(x, y):
+    title = "Learning Curves (100)"
+    # Cross validation with 100 iterations to get smoother mean test and train
+    # score curves, each time with 20% data randomly selected as a validation set.
+    cv = ShuffleSplit(n_splits=2, test_size=0.2, random_state=0)
+    clf = RandomForestClassifier(n_estimators=10, max_depth=None)
+    plot_learning_curve(clf, title, x, y, cv=cv, train_sizes=np.logspace(-3, 0, 4), log_x=True, n_jobs=-1)
+
+    title = "Learning Curves (1000)"
+    clf = RandomForestClassifier(n_estimators=100, max_depth=None)
+    plot_learning_curve(clf, title, x, y, cv=cv, train_sizes=np.logspace(-3, 0, 4), log_x=True, n_jobs=-1)
+
+    plt.show()
+
 def main():
-    # read
     n_train = 1000
-    n_test = 1000
+    n_test = 100000
     RFnan = True
+    
+    # READ
     t0 = time()
     data = shuffle(pd.read_csv('data.csv'), random_state=seed)[:n_train + n_test]
     y = data['Label']
@@ -124,25 +140,42 @@ def main():
     x = data.drop(columns=['Label', "KaggleSet", "Weight", "KaggleWeight", "EventId"])
     x = x.replace(-999, np.nan)
     
-    # preprocess
-    cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
-                "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
-    x = make_column_transformer((Shift_log(), cols_log), remainder="passthrough").fit_transform(x)
-    if RFnan:
-        x = StandardScaler().fit_transform(x)
-        x = SimpleImputer(missing_values=np.nan, fill_value=-999999.0).fit_transform(x)
-    else:
-        x = IterativeImputer(max_iter=int(1e2)).fit_transform(x)
-        x = StandardScaler().fit_transform(x)
-        #x = PCA(15).fit_transform(x)
+    
+    # SPLIT
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=n_test)
     
-    # eval
-    # main_get_best_hyperparam(X_train, y_train, n_splits=3)
+    
+    # PREPROCESS
+    transformers = []
+    cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
+                "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
+    transformers.append(make_column_transformer((Shift_log(), cols_log), remainder="passthrough"))
     if RFnan:
-        main_eval_model_nan(X_train, y_train, n_splits=3)
+        transformers.append(StandardScaler())
+        transformers.append(SimpleImputer(missing_values=np.nan, fill_value=-999999.0))
     else:
-        main_eval_model(X_train, y_train, n_splits=3)
+        transformers.append(IterativeImputer(max_iter=int(1e2)))
+        transformers.append(StandardScaler().fit_transform(x))
+        # transformers.append(PCA(20).fit_transform(x))
+    
+    for trans in transformers:
+        X_train = trans.fit_transform(X_train)
+        X_test = trans.transform(X_test)
+    
+    
+    # GRID SEARCH
+    # main_get_best_hyperparam(X_train, y_train, n_splits=3)
+    
+    
+    # CROSS VAL
+    # if RFnan:
+    #     main_eval_model_nan(X_train, y_train, n_splits=3)
+    # else:
+    #     main_eval_model(X_train, y_train, n_splits=3)
+    
+    
+    # LEARNING CURVE
+    main_learning_curve(X_test, y_test)
     
     
     print("temps total", time() - t0)
