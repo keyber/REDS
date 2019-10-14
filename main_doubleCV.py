@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_sc
 from sklearn.linear_model import Perceptron  #, BayesianRidge
 from sklearn.base import BaseEstimator, TransformerMixin
 from time import time
-from AMS import AMS, AMS_v2
+from AMS import AMS
 from plot_learning_curve import plot_learning_curve
 import matplotlib.pyplot as plt
 import tempfile
@@ -117,7 +117,7 @@ def main_learning_curve(x, y):
     title = "Learning Curves (100)"
     # Cross validation with 100 iterations to get smoother mean test and train
     # score curves, each time with 20% data randomly selected as a validation set.
-    cv = ShuffleSplit(n_splits=2, test_size=0.2, random_state=0)
+    cv = ShuffleSplit(n_splits=5, test_size=0.2, random_state=0)
     clf = RandomForestClassifier(n_estimators=10, max_depth=None)
     plot_learning_curve(clf, title, x, y, cv=cv, train_sizes=np.logspace(-3, 0, 4), log_x=True, n_jobs=-1)
 
@@ -129,8 +129,8 @@ def main_learning_curve(x, y):
 
 def main():
     n_train = 1000
-    n_test = 100000
-    RFnan = True
+    n_test = 1000
+    RFnan = False
     
     # READ
     t0 = time()
@@ -155,8 +155,8 @@ def main():
         transformers.append(SimpleImputer(missing_values=np.nan, fill_value=-999999.0))
     else:
         transformers.append(IterativeImputer(max_iter=int(1e2)))
-        transformers.append(StandardScaler().fit_transform(x))
-        # transformers.append(PCA(20).fit_transform(x))
+        transformers.append(StandardScaler())
+        # transformers.append(PCA(20))
     
     for trans in transformers:
         X_train = trans.fit_transform(X_train)
