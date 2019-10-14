@@ -91,7 +91,19 @@ def main_get_best_hyperparam(x, y, n_splits):
     ]
     
     grid_search(param_grid, x, y, n_splits)
+
+
+def main_get_best_hyperparam_nan(x, y, n_splits):
+    param_grid = [
+        {
+            'clf': (RandomForestClassifier(),),
+            'clf__n_estimators': (1000,),
+            'clf__max_depth': (None, 50),
+        },
+    ]
     
+    grid_search(param_grid, x, y, n_splits)
+
 
 def main_eval_model(x, y, n_splits):
     clfs = [
@@ -104,14 +116,14 @@ def main_eval_model(x, y, n_splits):
     for name, clf in clfs:
         t0 = time()
         res = cross_val_score(clf, x, y, cv=n_splits, scoring='accuracy')
-        print(name, "%.2f, +/- %.2f (%.0f)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
+        print(name, "%.2f, +/- %.2f (%.0fs)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
 
 
 def main_eval_model_nan(x, y, n_splits):
     clf = RandomForestClassifier(n_estimators=500, max_depth=None)
     t0 = time()
     res = cross_val_score(clf, x, y, cv=n_splits, scoring='accuracy')
-    print("rfnan : %.2f, +/- %.2f (%.0f)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
+    print("rfnan : %.2f, +/- %.2f (%.0fs)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
 
 def main_learning_curve(x, y):
     title = "Learning Curves (100)"
@@ -130,7 +142,7 @@ def main_learning_curve(x, y):
 def main():
     n_train = 1000
     n_test = 1000
-    RFnan = False
+    RFnan = True
     
     # READ
     t0 = time()
@@ -164,14 +176,16 @@ def main():
     
     
     # GRID SEARCH
-    # main_get_best_hyperparam(X_train, y_train, n_splits=3)
-    
+    if RFnan:
+        main_get_best_hyperparam_nan(X_train, y_train, n_splits=3)
+    else:
+        main_get_best_hyperparam(X_train, y_train, n_splits=3)
     
     # CROSS VAL
-    # if RFnan:
-    #     main_eval_model_nan(X_train, y_train, n_splits=3)
-    # else:
-    #     main_eval_model(X_train, y_train, n_splits=3)
+    if RFnan:
+        main_eval_model_nan(X_train, y_train, n_splits=3)
+    else:
+        main_eval_model(X_train, y_train, n_splits=3)
     
     
     # LEARNING CURVE
