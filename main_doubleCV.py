@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.experimental import enable_iterative_imputer  # noqa
 # noinspection PyUnresolvedReferences
 from sklearn.impute import SimpleImputer, IterativeImputer
+from sklearn.metrics import roc_curve
 from sklearn.utils import shuffle
 from sklearn.compose import make_column_transformer
 from sklearn.preprocessing import StandardScaler
@@ -11,11 +12,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, AdaBoostClassifier
 from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, ShuffleSplit
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, ShuffleSplit, KFold
 from sklearn.linear_model import Perceptron  #, BayesianRidge
 from sklearn.base import BaseEstimator, TransformerMixin
 from time import time
-from AMS import AMS, AMS_v2
+from AMS import AMS#, AMS_v2
 from plot_learning_curve import plot_learning_curve
 import matplotlib.pyplot as plt
 import tempfile
@@ -127,10 +128,28 @@ def main_learning_curve(x, y):
 
     plt.show()
 
+def main_plot_roc_curve(train, test, n_splits):
+    X_train, y_train = train
+    X_test, y_test = test
+    clf = RandomForestClassifier(n_estimators=500, max_depth=50)
+
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict(X_test)
+    fpr, tpr, thresholds = roc_curve(y_test, y_pred)
+
+    plt.figure()
+    plt.title("ROC curve")
+    plt.xlabel("False positive rate")
+    plt.ylabel("True positive rate")
+    plt.plot([0,1], [0, 1])
+    plt.plot(fpr, tpr)
+    plt.show()
+
 def main():
     n_train = 1000
     n_test = 100000
-    RFnan = True
+    RFnan = False
     
     # READ
     t0 = time()
@@ -175,9 +194,11 @@ def main():
     
     
     # LEARNING CURVE
-    main_learning_curve(X_test, y_test)
+    #main_learning_curve(X_test, y_test)
     
-    
+    # ROC CURVE
+    #main_plot_roc_curve((X_train, y_train), (X_test, y_test))
+
     print("temps total", time() - t0)
 
 
