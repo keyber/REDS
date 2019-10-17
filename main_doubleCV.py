@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_sc
 from sklearn.linear_model import Perceptron  #, BayesianRidge
 from sklearn.base import BaseEstimator, TransformerMixin
 from time import time
-from AMS import AMS#, AMS_v2
+from AMS import AMS
 from plot_learning_curve import plot_learning_curve
 import matplotlib.pyplot as plt
 import tempfile
@@ -92,7 +92,19 @@ def main_get_best_hyperparam(x, y, n_splits):
     ]
     
     grid_search(param_grid, x, y, n_splits)
+
+
+def main_get_best_hyperparam_nan(x, y, n_splits):
+    param_grid = [
+        {
+            'clf': (RandomForestClassifier(),),
+            'clf__n_estimators': (1000,),
+            'clf__max_depth': (None, 50),
+        },
+    ]
     
+    grid_search(param_grid, x, y, n_splits)
+
 
 def main_eval_model(x, y, n_splits):
     clfs = [
@@ -105,20 +117,20 @@ def main_eval_model(x, y, n_splits):
     for name, clf in clfs:
         t0 = time()
         res = cross_val_score(clf, x, y, cv=n_splits, scoring='accuracy')
-        print(name, "%.2f, +/- %.2f (%.0f)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
+        print(name, "%.2f, +/- %.2f (%.0fs)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
 
 
 def main_eval_model_nan(x, y, n_splits):
     clf = RandomForestClassifier(n_estimators=500, max_depth=None)
     t0 = time()
     res = cross_val_score(clf, x, y, cv=n_splits, scoring='accuracy')
-    print("rfnan : %.2f, +/- %.2f (%.0f)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
+    print("rfnan : %.2f, +/- %.2f (%.0fs)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
 
 def main_learning_curve(x, y):
     title = "Learning Curves (100)"
     # Cross validation with 100 iterations to get smoother mean test and train
     # score curves, each time with 20% data randomly selected as a validation set.
-    cv = ShuffleSplit(n_splits=2, test_size=0.2, random_state=0)
+    cv = ShuffleSplit(n_splits=5, test_size=0.2, random_state=0)
     clf = RandomForestClassifier(n_estimators=10, max_depth=None)
     plot_learning_curve(clf, title, x, y, cv=cv, train_sizes=np.logspace(-3, 0, 4), log_x=True, n_jobs=-1)
 
@@ -148,9 +160,9 @@ def main_plot_roc_curve(train, test, n_splits):
 
 def main():
     n_train = 1000
-    n_test = 100000
-    RFnan = False
-    
+    n_test = 1000
+    RFnan = True
+
     # READ
     t0 = time()
     data = shuffle(pd.read_csv('data.csv'), random_state=seed)[:n_train + n_test]
@@ -174,8 +186,8 @@ def main():
         transformers.append(SimpleImputer(missing_values=np.nan, fill_value=-999999.0))
     else:
         transformers.append(IterativeImputer(max_iter=int(1e2)))
-        transformers.append(StandardScaler().fit_transform(x))
-        # transformers.append(PCA(20).fit_transform(x))
+        transformers.append(StandardScaler())
+        # transformers.append(PCA(20))
     
     for trans in transformers:
         X_train = trans.fit_transform(X_train)
@@ -183,14 +195,16 @@ def main():
     
     
     # GRID SEARCH
-    # main_get_best_hyperparam(X_train, y_train, n_splits=3)
-    
+    if RFnan:
+        main_get_best_hyperparam_nan(X_train, y_train, n_splits=3)
+    else:
+        main_get_best_hyperparam(X_train, y_train, n_splits=3)
     
     # CROSS VAL
-    # if RFnan:
-    #     main_eval_model_nan(X_train, y_train, n_splits=3)
-    # else:
-    #     main_eval_model(X_train, y_train, n_splits=3)
+    if RFnan:
+        main_eval_model_nan(X_train, y_train, n_splits=3)
+    else:
+        main_eval_model(X_train, y_train, n_splits=3)
     
     
     # LEARNING CURVE
