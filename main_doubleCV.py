@@ -140,7 +140,7 @@ def main_learning_curve(x, y):
 
     plt.show()
 
-def main_plot_roc_curve(train, test, n_splits):
+def main_plot_roc_curve(train, test):
     X_train, y_train = train
     X_test, y_test = test
     clf = RandomForestClassifier(n_estimators=500, max_depth=50)
@@ -211,7 +211,7 @@ def main():
     #main_learning_curve(X_test, y_test)
     
     # ROC CURVE
-    #main_plot_roc_curve((X_train, y_train), (X_test, y_test))
+    main_plot_roc_curve((X_train, y_train), (X_test, y_test))
 
     print("temps total", time() - t0)
 
