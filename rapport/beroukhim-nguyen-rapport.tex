@@ -60,7 +60,6 @@
 
 %% equations
 \usepackage{amsthm}
-\usepackage[retainorgcmds]{IEEEtrantools}
 
 %% theorem and proposition
 \newtheorem{prop}{Proposition}
@@ -374,13 +373,16 @@ d'ensemble}. Ces algorithmes consistent à \textbf{combiner plusieurs classifieu
 faibles} pour obtenir un modèle \textbf{plus stable, plus robuste et ayant une meilleure
 capacité de généralisation}. \\
 
-\textbf{Bootstrap AGGregatING (Bagging). } \quad Le \emph{Bootstrap Aggregating}
-est une méthode pour \textbf{réduire la variance par moyennage}.  Plusieurs
-ensembles d'apprentissage sont simulés par \textbf{\emph{bootstrap} (tirage avec
-remise)} puis \textbf{sur chaque sous ensemble, on entraîne un classifieur
-faible}.  Dans notre contexte de classification binaire, la prédiction du modèle
-est définie par le \textbf{vote majoritaire des modèles simples
-(\emph{aggregating})} .
+\begin{itemize}
+    \item Bootstrap AGGregatING (Bagging) : 
+        
+        Le \emph{Bootstrap Aggregating} est une méthode pour \textbf{réduire la
+        variance par moyennage}.  Plusieurs ensembles d'apprentissage sont
+        simulés par \textbf{\emph{bootstrap} (tirage avec remise)} puis
+        \textbf{sur chaque sous ensemble, on entraîne un classifieur faible}.
+        Dans notre contexte de classification binaire, la prédiction du modèle
+        est définie par le \textbf{vote majoritaire des modèles simples
+        (\emph{aggregating})} .
 
 Comme chaque classifieur faible est entraîné sur des données légèrement
 différentes, le modèle d'ensemble est capable de \textbf{capturer de petites
@@ -390,45 +392,67 @@ Nous choisissons, uniquement pour le Bagging, le \textbf{Perceptron} comme
 classifieur faible. Il s'agit d'un \textbf{modèle instable}, ce qui permet
 d'obtenir un \textbf{ensemble de classifieurs suffisamment différents}. \\
 
-\textbf{Random Forest. } \quad Avec la technique du Bagging, même si chaque
-classifieur est appris sur un jeu de données légèrement différent, tous les
-modèles se servent des mêmes attributs pour partitionner les données, les arbres
-générés risquent donc d'être \textbf{trop similaires}. Pour pallier à ce
-problème, les arbres des \textbf{forêts aléatoires (\emph{random forests})},
-également appris sur des bootstrap de l'ensemble original, \textbf{sélectionnent
-pour chacun de leurs noeuds un échantillon aléatoire de features}, ce qui
-\textbf{force les modèles à être différents} et empêche le modèle global de se
-concentrer sur des attributs particuliers. \\
+\item Random Forest : 
+    
+    Avec la technique du Bagging, même si chaque classifieur est appris sur un
+        jeu de données légèrement différent, tous les modèles se servent des
+        mêmes attributs pour partitionner les données, les arbres générés
+        risquent donc d'être \textbf{trop similaires}. Pour pallier à ce
+        problème, les arbres des \textbf{forêts aléatoires (\emph{random
+        forests})}, également appris sur des bootstrap de l'ensemble original,
+        \textbf{sélectionnent pour chacun de leurs noeuds un échantillon
+        aléatoire de features}, ce qui \textbf{force les modèles à être
+        différents} et empêche le modèle global de se concentrer sur des
+        attributs particuliers. \\
 
-\textbf{AdaBoost. } \quad Avec la technique de Bagging, les classifieurs faibles
-sont appris indépendamment les uns des autres. Or, si ce classifieur est, à lui
-seul, trop faible, \textbf{le Bagging ne permettra pas d'obtenir un meilleur
-biais}. Le \textbf{\emph{Boosting}} permet de traiter ce problème par
-\textbf{apprentissage successif de classifieurs faibles} : en donnant plus de
-poids aux exemples mal classés par les modèles précédents, \textbf{chaque
-nouveau classifieur se focalise sur les parties de l'espace mal prédites}.
-Contrairement au Bagging, la contribution d'un classifieur à la prédiction du
-modèle d'ensemble est déterminée par sa performance.
+    \item AdaBoost : 
+        
+        Avec la technique de Bagging, les classifieurs faibles sont appris
+        indépendamment les uns des autres. Or, si ce classifieur est, à lui
+        seul, trop faible, \textbf{le Bagging ne permettra pas d'obtenir un
+        meilleur biais}. Le \textbf{\emph{Boosting}} permet de traiter ce
+        problème par \textbf{apprentissage successif de classifieurs faibles} :
+        en donnant plus de poids aux exemples mal classés par les modèles
+        précédents, \textbf{chaque nouveau classifieur se focalise sur les
+        parties de l'espace mal prédites}.  Contrairement au Bagging, la
+        contribution d'un classifieur à la prédiction du modèle d'ensemble est
+        déterminée par sa performance.
 
 En revanche, si le classifieur faible est trop complexe, le modèle de Boosting
-\textbf{risque de sur-apprendre}, auquel cas la technique de Bagging est plus
-adaptée.\\
+        \textbf{risque de sur-apprendre}, auquel cas la technique de Bagging est
+        plus adaptée.
+
+\end{itemize}
 
 \subsection{Protocole d'expérimentation} 
 
 Tout d'abord, nous commençons par \textbf{séparer le jeu de données en train et
 en test}.  Avant d'entraîner nos modèles, nous apprenons les \textbf{paramètres
 de prétraitement des données} sur l'ensemble d'apprentissage, et nous appliquons
-les prétraitements sur l'ensemble des données. Les prétraitements et
-apprentissages des paramètres sont effectués dans l'ordre décrit précédemment:
-\textbf{log-transformation} (valeurs minimales des colonnes apprises),
-\textbf{imputing} (paramètres de tous les régresseurs appris) et
-\textbf{scaling} (moyennes et écarts-types des colonnes appris). \\
+les prétraitements sur l'ensemble des données. 
+
+Les prétraitements et apprentissages des paramètres sont effectués dans l'ordre
+décrit précédemment: \textbf{log-transformation} (valeurs minimales des colonnes
+apprises), \textbf{imputing} (paramètres de tous les régresseurs appris) et
+\textbf{scaling} (moyennes et écarts-types des colonnes appris). De plus, nous
+comparerons les résultats obtenus en appliquant préalablement ou non une
+\textbf{ PCA} (à 15 composantes principales) aux données.
+
+En parallèle, pour pouvoir comparer l'approche de complétion à celle de
+conservation des données, nous effectuons un scaling des données d'origine et
+remplaçons les valeurs manquantes par une valeur aberrante. Nous ne rajoutons
+pas de PCA à ces prétraitements.
+
+Par la suite, les expériences seront dédoublées : elles seront menées d'un côté
+sur les données complétées, de l'autre sur les données conservées. 
+
+L'ensemble des paramètres est appris sur les données d'apprentissage et les
+prétraitements sont appliqués sur la totalité des données. \\
 
 Pour chaque algorithme, nous procédons par \textbf{\emph{grid search} pour
 trouver les hyperparamètres optimaux}. Pour chaque combinaison
 d'hyperparamètres, la performance du modèle produit est estimée par
-\textbf{\emph{cross-validation}}p sur l'ensemble d'apprentissage. \\
+\textbf{\emph{cross-validation}} sur l'ensemble d'apprentissage. \\
 
 Pour chaque modèle, nous récupérons les hyperparamètres ayant produit le
 meilleur résultat et \textbf{calculons le score final par cross-validation sur les
@@ -448,18 +472,71 @@ obtenus en optimisant les modèles pour cette métrique.
 
 \subsection{Résultats et analyse}
 
+%\begin{table}[H]
+%\centering
+%\resizebox{0.3\textwidth}{!}{
+%\begin{tabular}{c|c|c}
+%    & $C$ & Noyau\\
+%    \hline
+%    Accuracy & 3.16 & rbf \\
+%    AMS & 3.27 & rbf \\
+%\end{tabular}}
+%\caption{Paramètres optimaux pour le SVM}
+%\end{table}
+
+Pour le SVM, nous cherchons la valeur optimale de la pénalité $C$ du terme
+d'erreur ainsi que le meilleur noyau à utiliser. 
+
+$C$ correspond à la constante de \emph{soft margin}. Cet hyperparamètre influe
+sur le compromis entre l'erreur en apprentissage et la maximisation de la marge.
+Plus sa valeur est petite, plus le modèle sera tolérant envers les exemples mal
+classés ou dans la marge, ce qui correspond à élargir cette dernière. Nous
+faisons varier $C$ parmi 100 valeurs entre 0.1 et 10 équitablement réparties sur
+une échelle logarithmique.
+
+De plus, nous cherchons le noyau le plus adapté : \emph{Radial Basis Function}
+(rbf) ou un noyau polynomial (poly). Cet hyperparamètre définit le type
+d'hyperplan utilisé pour séparer les données.  \\
+
+La \figref{tab:svm-parameters} contient les hyperpamètres optimisant le SVM pour
+chaque métrique, avec ou sans PCA. Nous constatons que le noyau rbf permet
+d'obtenir les meilleures performances dans chaque cas. Les valeurs de $C$
+maximisant les scores en AMS sont significativement plus élevées que celles
+maximisant l'accuracy, ce qui souligne la différence entre ces deux problèmes
+d'optimisation.\\
+
+\todo[inline, color=yellow!40]{Explication des hyperparamètres à mettre dans
+protocole ou analyse ?}
+
 \begin{table}[H]
-\centering
-\resizebox{0.3\textwidth}{!}{
-\begin{tabular}{c|c|c}
-    & $C$ & Noyau\\
-    \hline
-    Accuracy & 3.16 & rbf \\
-    AMS & 1.78 & rbf\\
-\end{tabular}}
-\caption{Paramètres optimaux pour le SVM (accuracy, $|X_{train}|=1000$)}
+    \centering
+    \resizebox{0.7\textwidth}{!}{
+        \begin{tabular}{c|*{3}{c|}c}
+            \multirow{2}{*}{} &
+            \multicolumn{2}{c|}{Accuracy} &
+            \multicolumn{2}{c}{AMS}
+            \\ \cline{2-3} \cline{4-5}
+            & sans PCA & avec PCA & sans PCA & avec PCA\\
+            \hline
+            C & 0.98 & 0.74 & 2.85 & 6.28 \\
+            Noyau & rbf & rbf & rbf & rbf \\
+        \end{tabular}}
+    \caption{Paramètres optimaux pour le SVM}
+    \label{tab:svm-parameters}
 \end{table}
 
+Pour les méthodes d'ensemble, nous faisons varier le nombre d'estimateurs (50,
+500, 1000 ou 2000), qui correspond à l'hyperparamètre influant le plus sur la
+précision de la prédiction. De plus, nous cherchons la profondeur maximale
+optimale des Random Forests.  \\
+
+Les hyperparamètres optimaux obtenus pour chaque méthode d'ensemble, chaque
+métrique et en considérant l'intégralité des variables (resp. seulement les 15
+composantes principales) figurent dans le \tabref{tab:ensemble-parameters}
+(resp.  \tabref{tab:ensemble-parameters-pca}).  Nous ne remarquons pas de
+phénomènes particuliers : ces hyperparamètres n'évoluent pas de façon monotone
+lorsque nous passons d'une méthode/métrique à un autre, ni lorsque nous
+considérons ou non une PCA. \\
 
 \begin{table}[H]
     \resizebox{\textwidth}{!}{
@@ -472,14 +549,45 @@ obtenus en optimisant les modèles pour cette métrique.
             \\ \cline{2-3} \cline{4-5} \cline{6-7} \cline{8-9}
             & Accuracy & AMS & Accuracy & AMS & Accuracy & AMS & Accuracy & AMS\\
             \hline
-            Nombre d'estimateurs & 500 & 2000 & 500 & 1000 & 500 & 500 & 1000 & 50 \\
-            Profondeur max & \cellcolor{gray!40} & \cellcolor{gray!40} & 50 & 50 &
-            $\infty$ & $\infty$ & \cellcolor{gray!40} & \cellcolor{gray!40} \\
+            Nombre d'estimateurs & 500 & 500 & 500 & 500 & 1000 & 2000 & 1000 & 50 \\
+            Profondeur max & \cellcolor{gray!40} & \cellcolor{gray!40} & $\infty$ & 20 &
+            50 & $\infty$ & \cellcolor{gray!40} & \cellcolor{gray!40} \\
         \end{tabular}}
-    \caption{Paramètres optimaux pour les méthodes d'ensemble (accuracy,
-    $|X_{train}|=1000$)}
+    \caption{Paramètres optimaux pour les méthodes d'ensemble (sans PCA)}
+    \label{tab:ensemble-parameters}
 \end{table}
 
+\begin{table}[H]
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{c|*{5}{c|}c}
+            \multirow{2}{*}{} &
+            \multicolumn{2}{c|}{Bagging} &
+            \multicolumn{2}{c|}{RF} &
+            \multicolumn{2}{c}{AdaBoost}
+            \\ \cline{2-3} \cline{4-5} \cline{6-7} 
+            & Accuracy & AMS & Accuracy & AMS & Accuracy & AMS\\
+            \hline
+            Nombre d'estimateurs & 2000 & 500 & 500 & 2000 & 500 & 50 \\
+            Profondeur max & \cellcolor{gray!40} & \cellcolor{gray!40} & 50 & 50 & \cellcolor{gray!40} & \cellcolor{gray!40} \\
+        \end{tabular}}
+    \caption{Paramètres optimaux pour les méthodes d'ensemble (avec PCA)}
+    \label{tab:ensemble-parameters-pca}
+\end{table}
+
+\todo[inline, color=yellow!40]{Je ne sais pas si ça vaut le coup de garder les
+paramètres optimaux avec PCA, ça fait beaucoup d'info pas très utile mais pour
+l'instant je les laisse au cas où}
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=0.7\textwidth]{images/ams.png}
+    \caption{AMS moyen en fonction de la valeur de $C$}
+    \label{img:ams-C}
+\end{figure}
+
+Sur la \figref{img:ams-C} est tracé l'AMS moyen obtenu en apprentissage en
+fonction de la valeur de $C$ (sans PCA). Nous constatons que le score augmente
+jusqu'à $C \approx 4$ puis stagne.
 
 \begin{table}[H]
     \resizebox{\textwidth}{!}{
@@ -489,20 +597,48 @@ obtenus en optimisant les modèles pour cette métrique.
             \multicolumn{2}{c}{AMS ($10^{-2}$)}\\ \cline{2-3} \cline{4-5}
             & Apprentissage & Test & Apprentissage & Test \\
             \hline
-            SVM & $75.20 \pm 1.55$ & $75.30 \pm 0.42$ & $4.14 \pm
-            0.49$ & $3.01 \pm 0.23$\\
-            Bagging & $73.30 \pm 1.24$ & $71.80 \pm 0.71$ & $2.90 \pm
-            0.29$ & $2.33 \pm 0.26$\\ 
-            RF & $80.20 \pm 0.50$ & $80.70 \pm 0.62$ & $5.10 \pm
-            0.93$ & $3.79 \pm 0.28$\\
-            RFNan & $81.70 \pm 0.17$ & $81.40 \pm 0.82$& $5.14 \pm
-            1.00$ & $4.00 \pm 0.37$\\
-            AdaBoost & $74.30 \pm0.79$ & $74.50 \pm 0.58$ & $4.03 \pm
-            0.35$ & $3.41 \pm 0.07$\\
+            SVM & $75.90 \pm 1.67$ & $75.00 \pm 1.16$ & $ 4.35 \pm 0.39 $ &
+            $3.19 \pm 0.52$ \\
+            Bagging & $71.90 \pm 1.29$ & $72.60 \pm 0.98$ & $3.16 \pm 0.60$ &
+            $2.23 \pm 0.24$\\
+            RF & \cellcolor{green!25}$80.70 \pm 1.24$ & $78.70 \pm 1.59$ & $5.07
+            \pm 0.96$ & $3.98 \pm 0.16$\\
+            RFNan & $80.20 \pm 0.44$ & \cellcolor{green!25}$81.30 \pm 0.62 $ &
+            \cellcolor{green!25}$5.15 \pm 1.12$ & \cellcolor{green!25}$4.00 \pm
+            0.15$\\
+            AdaBoost & $73.30 \pm 0.76$ & $73.30 \pm 1.49$ & $3.92 \pm 0.55$ &
+            $3.42 \pm 0.16$\\
         \end{tabular}}
-    \caption{Performances obtenues avec chaque méthode $|X_{test}|=1000$)}
+    \caption{Performances obtenues avec chaque méthode (sans PCA)}
     \label{tab:ensemble-results}
 \end{table}
+
+\todo[inline, color=red!40]{À commenter \\}
+
+\begin{table}[H]
+    \center
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{c|*{3}{c|}c}
+            \multirow{2}{*}{} &
+            \multicolumn{2}{c|}{\% Accuracy} &
+            \multicolumn{2}{c}{AMS ($10^{-2}$)}\\ \cline{2-3} \cline{4-5}
+            & Apprentissage & Test & Apprentissage & Test \\
+            \hline
+            SVM & \cellcolor{green!25}$76.60 \pm 0.52$ & $
+            \cellcolor{green!25}76.50 \pm 0.93 $ & \cellcolor{green!25}$4.13 \pm
+            0.47$ & \cellcolor{green!25}$2.80 \pm 0.39 $\\
+            Bagging & $70.80 \pm 0.57$ & $70.00 \pm 0.51$ & $2.01 \pm 0.32$ &
+            $1.49 \pm 0.26$  \\ 
+            RF & $76.30 \pm 0.49$ & $75.30 \pm 1.44 $ & $3.72 \pm 0.62$ & $2.66
+            \pm 0.07$\\
+            AdaBoost & $67.70 \pm 0.42$ & $67.30 \pm  0.43$ & $3.12 \pm 0.32$ &
+            $2.50 \pm 0.33$ \\
+        \end{tabular}}
+    \caption{Performances obtenues avec chaque méthode (avec PCA)}
+    \label{tab:ensemble-results}
+\end{table}
+
+\todo[inline, color=red!40]{À commenter \\}
 
 \begin{figure}[H]
 	\centering
@@ -514,9 +650,18 @@ obtenus en optimisant les modèles pour cette métrique.
     \end{subfigure}
 \end{figure}
 
-\todo[inline, color=red!40]{Courbes à commenter \\}
+\todo[inline, color=yellow!40]{Remplacer par les nouveaux plots \\}
 
-\todo[inline, color=yellow!40]{Tableaux, graphiques, courbe ROC}
+\todo[inline, color=red!40]{À commenter \\}
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=\textwidth]{images/ROC_curves.png}
+    \caption{Courbes ROC pour chaque méthode}
+    \label{img:roc-curves}
+\end{figure}
+
+\todo[inline, color=red!40]{À commenter \\}
 
 
 \newpage

@@ -136,7 +136,9 @@ def main():
     n_train = 1000
     n_test = 1000
     RFnan = False
-    t0 = time()
+    pca = True
+
+    # LOAD DATA
     data = shuffle(pd.read_csv('data.csv'), random_state=seed)[:n_train + n_test]
     y = data['Label']
     y = np.where(y == 's', 1, 0)
@@ -145,21 +147,29 @@ def main():
     x = x.drop(columns=['Weight'])
     x = x.replace(-999, np.nan)
 
-    # preprocess
-    cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
-                "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
-    x = make_column_transformer((Shift_log(), cols_log), remainder="passthrough").fit_transform(x)
-    if RFnan:
-        x = StandardScaler().fit_transform(x)
-        x = SimpleImputer(missing_values=np.nan, fill_value=-999999.0).fit_transform(x)
-    else:
-        x = IterativeImputer(max_iter=int(1e2)).fit_transform(x)
-        x = StandardScaler().fit_transform(x)
-        # x = PCA(15).fit_transform(x)
+    # SPLIT
     X_train, X_test, y_train, y_test, weights_train, weights_test = train_test_split(x, y, weights, random_state=seed,
                                                                                      test_size=n_test)
 
-    # eval
+    # PREPROCESS
+    transformers = []
+    cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
+                "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
+    transformers.append(make_column_transformer((Shift_log(), cols_log), remainder="passthrough"))
+    if RFnan:
+        transformers.append(StandardScaler())
+        transformers.append(SimpleImputer(missing_values=np.nan, fill_value=-999999.0))
+    else:
+        transformers.append(IterativeImputer(max_iter=int(1e2)))
+        transformers.append(StandardScaler())
+        if pca:
+            print("Using PCA")
+            transformers.append(PCA(15))
+
+    for trans in transformers:
+        X_train = trans.fit_transform(X_train)
+        X_test = trans.transform(X_test)
+
     start = time()
     if not eval_mode:
         if RFnan:
@@ -169,17 +179,17 @@ def main():
         else:
             results_bagging, results_boosting = grid_search((X_train, y_train), weights_train)
             results_rf = grid_search_rf((X_train, y_train), weights_train)
-            print("Bagging : \n\t{}".format(results_bagging))
-            print("Boosting : \n\t{}".format(results_boosting))
-            print("RF : \n\t{}".format(results_rf))
+            print("Bagging : \n\t{}".format(results_bagging.ix[results_bagging['average'].idxmax()]))
+            print("Boosting : \n\t{}".format(results_boosting.ix[results_boosting['average'].idxmax()]))
+            print("RF : \n\t{}".format(results_rf.ix[results_rf['average'].idxmax()]))
     else:
         if RFnan:
-            rf_nan = RandomForestClassifier(n_estimators=500, max_depth=None)
+            rf_nan = RandomForestClassifier(n_estimators=2000, max_depth=None)
             average, std = eval_best((X_test, y_test), weights_test, rf_nan)
             print("RFNan : %.4f +/- %.4f" % (average, std))
         else:
-            rf = RandomForestClassifier(n_estimators=1000, max_depth=50)
-            bagging = BaggingClassifier(Perceptron(max_iter=1000), max_samples=0.5, max_features=0.5, n_estimators=2000)
+            rf = RandomForestClassifier(n_estimators=2000, max_depth=50)
+            bagging = BaggingClassifier(Perceptron(max_iter=1000), max_samples=0.5, max_features=0.5, n_estimators=500)
             boosting = AdaBoostClassifier(n_estimators=50)
 
             for clf in [rf, bagging, boosting]:
