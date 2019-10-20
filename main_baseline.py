@@ -46,7 +46,7 @@ def compute_AMS(y_true, y_pred, weights):
 
 def grid_search(data, weights):
     X, y = data
-    C_values = np.logspace(-2, 1, num=5)
+    C_values = np.logspace(-1, 1, num=100)
     results = []
 
     for C in C_values:
@@ -85,20 +85,25 @@ def eval_best(data, weights, clf):
 
     return np.mean(scores_param), np.std(scores_param)
 
-def plot_score(scores, interval):
-    ax = plt.gca()
-    ax.plot(interval, scores)
-    ax.set_xscale('log')
+def plot_score(C_values, average, std):
+    #ax = plt.gca()
+    plt.fill_between(C_values, average - std, average + std, alpha=0.1)
+    plt.plot(C_values, average)
+    plt.xscale('log')
+    #ax.set_xscale('log')
     plt.xlabel('C')
     plt.ylabel('AMS')
     plt.axis('tight')
     plt.show()
 
 def main():
-    eval_mode = True
+    eval_mode = False
+    pca = False
     n_train = 1000
     n_test = 1000
     t0 = time()
+
+    # LOAD DATA
     data = shuffle(pd.read_csv('data.csv'), random_state=seed)[:n_train + n_test]
     y = data['Label']
     y = np.where(y == 's', 1, 0)
@@ -107,24 +112,46 @@ def main():
     x = x.drop(columns=['Weight'])
     x = x.replace(-999, np.nan)
 
-    # preprocess
-    cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
-                "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
-    x = make_column_transformer((Shift_log(), cols_log), remainder="passthrough").fit_transform(x)
-    x = IterativeImputer(max_iter=int(1e2)).fit_transform(x)
-    x = StandardScaler().fit_transform(x)
-    # x = PCA(15).fit_transform(x)
+    # SPLIT
     X_train, X_test, y_train, y_test, weights_train, weights_test = train_test_split(x, y, weights, random_state=seed,
                                                                                      test_size=n_test)
 
-    # train
+    # PREPROCESS
+    transformers = []
+    cols_log = ["DER_mass_MMC", "DER_mass_transverse_met_lep", "DER_mass_vis", "DER_pt_h", "DER_pt_ratio_lep_tau",
+                "DER_pt_tot", "DER_sum_pt", "PRI_jet_all_pt", "PRI_lep_pt", "PRI_met", "PRI_met_sumet", "PRI_tau_pt"]
+    transformers.append(make_column_transformer((Shift_log(), cols_log), remainder="passthrough"))
+    transformers.append(IterativeImputer(max_iter=int(1e2)))
+    transformers.append(StandardScaler())
+    if pca:
+        print("Using PCA")
+        transformers.append(PCA(15))
+
+    for trans in transformers:
+        X_train = trans.fit_transform(X_train)
+        X_test = trans.transform(X_test)
+
+
     start = time()
     if not eval_mode:
+        # TRAIN
         results = grid_search((X_train, y_train), weights_train)
-        print(results)
-        print("\tBest results : \n\t{}".format(results.ix[results['average'].idxmax()]))
+        id_best_result = results['average'].values.argmax()
+        C_values = np.unique(results['C'].values)
+        grouped_results = results.groupby(results['C']).mean() # average over C values
+
+        print("Best parameters : C = {}, kernel = {}".format(results.iloc[id_best_result]['C'],
+                                                             results.iloc[id_best_result]['kernel']))
+        print("Best train score : %.2f +- %.2f " % (results['average'].max() * 100,
+                                                    results.iloc[results['average'].values.argmax()]['std'] * 100))
+
+        # PLOT SCORES AGAINST C VALUES
+        avg_ams = grouped_results['average'].values
+        std_ams = grouped_results['std'].values
+        plot_score(C_values, avg_ams, std_ams)
     else:
-        clf = SVC(gamma="auto", max_iter=100000, C=1.78, kernel='rbf')
+        # COMPUTE TEST SCORE
+        clf = SVC(gamma="auto", max_iter=100000, C=6.28, kernel='rbf')
         print(eval_best((X_test, y_test), weights_test, clf))
     print("Total time : {}".format(time() - start))
 
