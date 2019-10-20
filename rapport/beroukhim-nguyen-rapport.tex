@@ -341,14 +341,12 @@ Cependant, comme le montre la \figref{img:corr-mat}, certaines variables sont
 diminuer la performance de certains algorithmes (en contribuant au
 sur-apprentissage par exemple).
 
-\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20]
 Afin de réduire le nombre de variables explicatives, nous comparerons donc les
 performances avec ou sans l’utilisation d’une \textbf{\emph{Analyse en
 Composantes Principales} (PCA)}. Pour choisir le nombre de composantes
 principales, nous traçons le pourcentage de variance expliquée en fonction du
 nombre de composantes (\figref{img:explained-var}). Avec 20 composantes, nous
 conservons $98.2\%$ de la variance totale.
-\end{mdframed}
 
 \begin{figure}[H]
     \center
@@ -453,19 +451,15 @@ les prétraitements sur l'ensemble des données.
 Les prétraitements et apprentissages des paramètres sont effectués dans l'ordre
 décrit précédemment: \textbf{log-transformation} (valeurs minimales des colonnes
 apprises), \textbf{imputing} (paramètres de tous les régresseurs appris) et
-\textbf{scaling} (moyennes et écarts-types des colonnes appris).
-\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20] De plus, nous
-    comparerons les résultats obtenus avec ces prétraitements à d'autres obtenus
-    en appliquant en plus une \textbf{PCA} (à 20 composantes principales) aux
-    données.
-\end{mdframed}
+\textbf{scaling} (moyennes et écarts-types des colonnes appris).  De plus, nous
+comparerons les résultats obtenus avec ces prétraitements à d'autres obtenus en
+appliquant en plus une \textbf{PCA} (à 20 composantes principales) aux données.
 
-\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20] En parallèle, pour
-    pouvoir comparer l'approche de complétion à celle de conservation des
-    données, nous effectuons un scaling des données d'origine et remplaçons les
-    valeurs manquantes par une valeur aberrante. Nous ne rajoutons pas de PCA à
-    ces prétraitements. Le seul modèle entraîné sur le jeu de données contenant des
-    données aberrantes est un Random Forest que l'on nommera RFnan. \end{mdframed}
+En parallèle, pour pouvoir comparer l'approche de complétion à celle de
+conservation des données, nous effectuons un scaling des données d'origine et
+remplaçons les valeurs manquantes par une valeur aberrante. Nous ne rajoutons
+pas de PCA à ces prétraitements. Le seul modèle entraîné sur le jeu de données
+contenant des données aberrantes est un Random Forest que nous nommerons RFnan.
 
 %Par la suite, les expériences seront dédoublées : elles
 %seront menées d'un côté sur les données complétées, de l'autre sur les
@@ -483,9 +477,8 @@ Pour chaque modèle, nous récupérons les hyperparamètres ayant produit le
 meilleur résultat et \textbf{calculons le score final par cross-validation sur les
 données de test}. \\
 
-\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20] Nous répétons les
-processus de grid-search et d'évaluation avec les données réduites à 20
-composantes principales.  \\ \end{mdframed}
+Nous répétons les processus de grid-search et d'évaluation avec les données
+réduites à 20 composantes principales. 
 
 Par souci de temps de calcul, les expériences de recherche de paramètres
 optimaux et d'évaluation des modèles ne sont pas menées sur le dataset entier.
