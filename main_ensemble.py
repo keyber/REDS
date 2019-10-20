@@ -135,7 +135,7 @@ def main():
     n_train = 1000
     n_test = 1000
     RFnan = False
-    pca = False
+    pca = True
     
     start = time()
     # LOAD DATA
@@ -189,7 +189,7 @@ def main():
         else:
             clfs = [
                 RandomForestClassifier(n_estimators=2000, max_depth=50),
-                BaggingClassifier(Perceptron(max_iter=1000), max_samples=0.5, max_features=0.5, n_estimators=500),
+                BaggingClassifier(Perceptron(max_iter=1000), max_samples=0.5, max_features=0.5, n_estimators=1000),
                 AdaBoostClassifier(n_estimators=50),
             ]
             

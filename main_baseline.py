@@ -97,8 +97,8 @@ def plot_score(C_values, average, std):
     plt.show()
 
 def main():
-    eval_mode = False
-    pca = False
+    eval_mode = True
+    pca = True
     n_train = 1000
     n_test = 1000
     t0 = time()
@@ -125,7 +125,7 @@ def main():
     transformers.append(StandardScaler())
     if pca:
         print("Using PCA")
-        transformers.append(PCA(15))
+        transformers.append(PCA(20))
 
     for trans in transformers:
         X_train = trans.fit_transform(X_train)
@@ -151,7 +151,7 @@ def main():
         plot_score(C_values, avg_ams, std_ams)
     else:
         # COMPUTE TEST SCORE
-        clf = SVC(gamma="auto", max_iter=100000, C=6.28, kernel='rbf')
+        clf = SVC(gamma="auto", max_iter=100000, C=1.71, kernel='rbf')
         print(eval_best((X_test, y_test), weights_test, clf))
     print("Total time : {}".format(time() - start))
 

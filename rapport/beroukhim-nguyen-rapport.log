@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017) (preloaded format=xelatex 2018.2.24)  20 OCT 2019 11:52
+This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017) (preloaded format=xelatex 2018.2.24)  20 OCT 2019 18:51
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2139,97 +2139,88 @@ Package mdframed Info: mdframed detected package amsthm
  changed the theorem header of amsthm
 (mdframed)              on input line 463.
 
-Underfull \hbox (badness 10000) in paragraph at lines 471--473
+Underfull \hbox (badness 10000) in paragraph at lines 474--476
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 474--478
+Underfull \hbox (badness 10000) in paragraph at lines 477--481
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 479--482
+Underfull \hbox (badness 10000) in paragraph at lines 482--485
 
  []
 
 Package mdframed Info: mdframed detected package amsthm 
  changed the theorem header of amsthm
-(mdframed)              on input line 483.
+(mdframed)              on input line 486.
 
-Underfull \hbox (badness 10000) in paragraph at lines 483--485
+Underfull \hbox (badness 10000) in paragraph at lines 486--488
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 487--493
+Underfull \hbox (badness 10000) in paragraph at lines 490--496
 
  []
 
 [6]
-Underfull \hbox (badness 10000) in paragraph at lines 511--514
+Underfull \hbox (badness 10000) in paragraph at lines 514--517
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 515--521
+Underfull \hbox (badness 10000) in paragraph at lines 518--522
 
  []
 
-Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
-ine 523.
 
-Underfull \hbox (badness 10000) in paragraph at lines 542--546
+Underfull \hbox (badness 10000) in paragraph at lines 541--545
 
  []
 
-Package mdframed Info: mdframed detected package amsthm 
- changed the theorem header of amsthm
-(mdframed)              on input line 552.
 
-Underfull \hbox (badness 10000) in paragraph at lines 552--556
+Underfull \hbox (badness 10000) in paragraph at lines 546--554
 
  []
 
-[7]
 File: images/ams.png Graphic file (type QTm)
- <use  "images/ams.png" >
-Package mdframed Info: mdframed detected package amsthm 
- changed the theorem header of amsthm
-(mdframed)              on input line 605.
-File: images/RF100.png Graphic file (type QTm)
- <use  "images/RF100.png" >
-File: images/RF1000.png Graphic file (type QTm)
-
-<use  "images/RF1000.png" > [8]
+<use  "images/ams.png" > [7]
+Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
+ine 659.
+ [8]
 File: images/ROC_curves.png Graphic file (type QTm)
- <use  "images/ROC_curves.png" > [9]
+ <use  "images/ROC_curves.png" >
+Underfull \hbox (badness 10000) in paragraph at lines 696--702
 
-LaTeX Warning: Empty bibliography on input line 688.
+ []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 689.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 689.
+[9] [10]
+
+LaTeX Warning: Empty bibliography on input line 729.
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 730.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 730.
 (./beroukhim-nguyen-rapport.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 689.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 689.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 730.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 730.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
 Package logreq Info: Writing requests to 'beroukhim-nguyen-rapport.run.xml'.
 \openout1 = `beroukhim-nguyen-rapport.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 41584 strings out of 493005
- 790091 string characters out of 6134596
- 1268162 words of memory out of 5000000
- 44946 multiletter control sequences out of 15000+600000
+ 41569 strings out of 493005
+ 789792 string characters out of 6134596
+ 1267031 words of memory out of 5000000
+ 44933 multiletter control sequences out of 15000+600000
  12592 words of font info for 67 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  67i,12n,80p,10441b,3731s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on beroukhim-nguyen-rapport.pdf (10 pages).
+Output written on beroukhim-nguyen-rapport.pdf (11 pages).

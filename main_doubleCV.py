@@ -21,6 +21,7 @@ from plot_learning_curve import plot_learning_curve
 import matplotlib.pyplot as plt
 import tempfile
 from joblib import Memory
+from sklearn.metrics import roc_auc_score
 
 seed = 0
 
@@ -109,10 +110,10 @@ def main_get_best_hyperparam_nan(x, y, n_splits):
 
 def main_eval_model(x, y, n_splits):
     clfs = [
-        ("svc", SVC(C=0.74, kernel="rbf", max_iter=100000, gamma="auto",)),
-        ("bag", BaggingClassifier(Perceptron(max_iter=1000), n_estimators=2000, max_samples=0.5, max_features=0.5)),
+        ("svc", SVC(C=0.89, kernel="rbf", max_iter=100000, gamma="auto",)),
+        ("bag", BaggingClassifier(Perceptron(max_iter=1000), n_estimators=1000, max_samples=0.5, max_features=0.5)),
         ("rfc", RandomForestClassifier(n_estimators=500, max_depth=50)),
-        ("ada", AdaBoostClassifier(n_estimators=500)),
+        ("ada", AdaBoostClassifier(n_estimators=2000)),
     ]
     
     for name, clf in clfs:
@@ -183,16 +184,17 @@ def main_plot_roc_curve(pca):
 
     rf_nan = RandomForestClassifier(n_estimators=500)
     rf_nan.fit(X_train_nan, y_train)
-    y_pred = rf_nan.predict_proba(X_test_nan)
-    fpr, tpr, thresholds = roc_curve(y_test, y_pred[:,1])
+    y_scores = rf_nan.predict_proba(X_test_nan)
+    fpr, tpr, thresholds = roc_curve(y_test, y_scores[:,1])
+    auc_scores = [roc_auc_score(y_test, y_scores[:,1])]
 
     fpr_list = [fpr]
     tpr_list = [tpr]
     thresh_list = [thresholds]
 
-    svm = SVC(gamma="auto", max_iter=100000, C=3.16, kernel='rbf', probability=True)
+    svm = SVC(gamma="auto", max_iter=100000, C=0.98, kernel='rbf', probability=True)
     bagging = BaggingClassifier(n_estimators=500)
-    rf = RandomForestClassifier(n_estimators=500, max_depth=50)
+    rf = RandomForestClassifier(n_estimators=500)
     ada = AdaBoostClassifier(n_estimators=1000)
 
     clfs = [rf_nan, svm, bagging, rf, ada]
@@ -200,12 +202,14 @@ def main_plot_roc_curve(pca):
 
     for clf in clfs[1:]:
         clf.fit(X_train, y_train)
-        y_pred = clf.predict_proba(X_test)
-        fpr, tpr, thresholds = roc_curve(y_test, y_pred[:,1])
+        y_scores = clf.predict_proba(X_test)
+        fpr, tpr, thresholds = roc_curve(y_test, y_scores[:,1])
 
         fpr_list.append(fpr)
         tpr_list.append(tpr)
         thresh_list.append(thresholds)
+
+        auc_scores.append(roc_auc_score(y_test, y_scores[:,1]))
 
     plt.figure()
     plt.title("ROC curve")
@@ -215,16 +219,17 @@ def main_plot_roc_curve(pca):
 
     for i in range(len(clfs)):
         plt.plot(fpr_list[i], tpr_list[i], label=clf_names[i])
+        print("{} : {}".format(clf_names[i], auc_scores[i]))
 
     plt.legend()
     plt.show()
 
 def main():
     n_train = 1000
-    n_test = 100000
+    n_test = 1000
     RFnan = False
     pca = True
-    eval_mode = False
+    eval_mode = True
 
     # READ
     t0 = time()
@@ -260,24 +265,24 @@ def main():
     
     
     # GRID SEARCH
-    # if not eval_mode:
-    #     if RFnan:
-    #         main_get_best_hyperparam_nan(X_train, y_train, n_splits=3)
-    #     else:
-    #         main_get_best_hyperparam(X_train, y_train, n_splits=3)
-    # else:
-    #     # CROSS VAL
-    #     if RFnan:
-    #         main_eval_model_nan(X_train, y_train, n_splits=3)
-    #     else:
-    #         main_eval_model(X_train, y_train, n_splits=3)
+    #if not eval_mode:
+    #    if RFnan:
+    #        main_get_best_hyperparam_nan(X_train, y_train, n_splits=3)
+    #    else:
+    #        main_get_best_hyperparam(X_train, y_train, n_splits=3)
+    #else:
+    #    # CROSS VAL
+    #    if RFnan:
+    #        main_eval_model_nan(X_train, y_train, n_splits=3)
+    #    else:
+    #        main_eval_model(X_train, y_train, n_splits=3)
     
     
     # LEARNING CURVE
-    main_learning_curve(X_test, y_test)
+    #main_learning_curve(X_test, y_test)
     
     # ROC CURVE
-    # main_plot_roc_curve((X_train, y_train), (X_test, y_test))
+    main_plot_roc_curve(pca)
 
     print("temps total", time() - t0)
 

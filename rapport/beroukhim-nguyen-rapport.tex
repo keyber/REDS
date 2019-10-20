@@ -517,13 +517,9 @@ d'hyperplan utilisé pour séparer les données.  \\
 
 La \figref{tab:svm-parameters} contient les hyperpamètres optimisant le SVM pour
 chaque métrique, avec ou sans PCA. Nous constatons que le noyau rbf permet
-d'obtenir les meilleures performances dans chaque cas. Les valeurs de $C$
-maximisant les scores en AMS sont significativement plus élevées que celles
-maximisant l'accuracy, ce qui souligne la différence entre ces deux problèmes
-d'optimisation.\\
+d'obtenir les meilleures performances dans chaque cas, et que les valeurs de $C$
+maximisant les scores en AMS sont similaires à celles maximisant l'accuracy.\\
 
-\todo[inline, color=yellow!40]{Explication des hyperparamètres à mettre dans
-protocole ou analyse ?}
 
 \begin{table}[H]
     \centering
@@ -535,7 +531,7 @@ protocole ou analyse ?}
             \\ \cline{2-3} \cline{4-5}
             & sans PCA & avec PCA & sans PCA & avec PCA\\
             \hline
-            C & 0.98 & 0.74 & 2.85 & 6.28 \\
+            C & 0.98 & 0.74 & 0.89 & 1.71 \\
             Noyau & rbf & rbf & rbf & rbf \\
         \end{tabular}}
     \caption{Paramètres optimaux pour le SVM}
@@ -551,12 +547,10 @@ Les hyperparamètres optimaux obtenus pour chaque méthode d'ensemble, chaque
 métrique et en considérant l'intégralité des variables figurent dans le
 \tabref{tab:ensemble-parameters}. Nous ne remarquons pas de phénomènes
 particuliers : ces hyperparamètres n'évoluent pas de façon monotone lorsque nous
-passons d'une méthode/métrique à une autre.
-\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20] Dans le cas des
-    données réduites à 20 composantes, les hyperparamètres optimaux obtenus
-    sont, pour la plupart, différents et, une fois de plus, nous ne constatons
-pas d'évolution particulière. Nous décidons donc de ne pas les afficher. \\
-\end{mdframed}
+passons d'une méthode/métrique à une autre.  Dans le cas des données réduites à
+20 composantes, les hyperparamètres optimaux obtenus sont, pour la plupart,
+différents et, une fois de plus, nous ne constatons pas d'évolution
+particulière. Nous décidons donc de ne pas les afficher. \\
 
 \begin{table}[H]
     \resizebox{\textwidth}{!}{
@@ -601,16 +595,14 @@ jusqu'à $C \approx 4$ puis stagne.
 \begin{figure}[H]
     \center
     \includegraphics[width=0.7\textwidth]{images/ams.png}
-    \caption{AMS moyen obtenu avec le SVM en fonction de la vaeur de $C$}
+    \caption{AMS moyen obtenu avec le SVM en fonction de la valeur de $C$}
     \label{img:ams-C}
 \end{figure}
 
-\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20]
 Les tableaux \ref{tab:ensemble-results} et \ref{tab:ensemble-results-pca}
 contiennent les scores en accuracy et AMS obtenus avec chaque méthode et,
 respectivement, sans et avec PCA. Pour chaque métrique et chaque ensemble sur
 lequel la performance est calculée, le meilleur score est surligné en vert.
-\end{mdframed}
 
 \begin{table}[H]
     \resizebox{\textwidth}{!}{
@@ -636,7 +628,6 @@ lequel la performance est calculée, le meilleur score est surligné en vert.
     \label{tab:ensemble-results}
 \end{table}
 
-\todo[inline, color=red!40]{À commenter \\}
 
 \begin{table}[H]
     \center
@@ -647,25 +638,25 @@ lequel la performance est calculée, le meilleur score est surligné en vert.
             \multicolumn{2}{c}{AMS ($10^{-2}$)}\\ \cline{2-3} \cline{4-5}
             & Apprentissage & Test & Apprentissage & Test \\
             \hline
-            SVM & \cellcolor{green!25}$76.60 \pm 0.52$ & $
-            \cellcolor{green!25}76.50 \pm 0.93 $ & \cellcolor{green!25}$4.13 \pm
-            0.47$ & \cellcolor{green!25}$2.80 \pm 0.39 $\\
-            Bagging & $70.80 \pm 0.57$ & $70.00 \pm 0.51$ & $2.01 \pm 0.32$ &
-            $1.49 \pm 0.26$  \\ 
-            RF & $76.30 \pm 0.49$ & $75.30 \pm 1.44 $ & $3.72 \pm 0.62$ & $2.66
-            \pm 0.07$\\
-            AdaBoost & $67.70 \pm 0.42$ & $67.30 \pm  0.43$ & $3.12 \pm 0.32$ &
-            $2.50 \pm 0.33$ \\
+            SVM & $76.30 \pm 1.49$ & $
+            \cellcolor{green!25}75.60 \pm 0.45 $ & \cellcolor{green!25}$4.38 \pm
+            0.36$ & \cellcolor{green!25}$3.02 \pm 0.12 $\\
+            Bagging & $71.70 \pm 1.93$ & $70.30 \pm 0.95$ & $2.20 \pm 0.49$ &
+            $1.91 \pm 0.06$  \\ 
+            RF & \cellcolor{green!25}$77.20 \pm 1.48$ & $74.60 \pm 1.37 $ &
+            $3.78 \pm 0.56$ & $2.69
+            \pm 0.17$\\
+            AdaBoost & $68.00 \pm 1.30$ & $68.00 \pm  0.99$ & $3.04 \pm 0.26$ &
+            $2.05 \pm 0.26$ \\
         \end{tabular}}
     \caption{Performances obtenues avec chaque méthode (avec PCA)}
     \label{tab:ensemble-results-pca}
 \end{table}
 
-Les performances obtenues avec PCA sont toujours inférieures à celles obtenues sans.
-L'utilisation d'une PCA n'est donc pas judicieuse.
+Les performances obtenues avec PCA sont toujours inférieures à celles obtenues
+sans.  L'utilisation d'une PCA n'est donc pas judicieuse.
 
-\todo[inline, color=red!40]{À commenter \\}
-
+\todo[inline, color=yellow!40]{Commenter les autres modèles ?\\}
 
 %\begin{figure}[H]
 %    \center
@@ -675,17 +666,19 @@ L'utilisation d'une PCA n'est donc pas judicieuse.
 %\end{figure}
 %\todo[inline, color=yellow!40]{Remplacer par les nouveaux plots \\}
 
-Les meilleurs modèles sont RF et RFnan, leur différence de score
-n'est pas suffisante pour pouvoir les départager.
-En relançant les expériences sur 10 fois plus de données
-(le temps d'exécution devient trop important au delà),
-on obtient les performances AMS suivantes :
-RF:     18.20 +/- 1.39
-RFnan:  18.29 +/- 1.75
-Les scores obtenus sont encore une fois très similaires, on pourra donc préférer le modèle RFnan
-qui ne nécessite pas d'entraîner des régresseurs pour compléter les données lors du prétraitement. 
+Les meilleurs modèles sont RF et RFnan, leur différence de score n'est pas
+suffisante pour pouvoir les départager.  En relançant les expériences sur 10
+fois plus de données (le temps d'exécution devient trop important au delà), nous
+obtenons les performances AMS ($10^{-2}$) suivantes :
 
-\todo[inline, color=red!40]{À commenter \\}
+\begin{itemize}
+    \item RF :     $18.20 \pm 1.39$
+    \item RFnan :  $18.29 \pm 1.75$
+\end{itemize}
+
+Les scores obtenus sont encore une fois très similaires, nous préférerons
+cependant le modèle RFnan qui ne nécessite pas d'entraîner des régresseurs pour
+compléter les données lors du prétraitement. 
 
 \begin{figure}[H]
     \center
@@ -694,9 +687,37 @@ qui ne nécessite pas d'entraîner des régresseurs pour compléter les données
     \label{img:roc-curves}
 \end{figure}
 
-\todo[inline, color=red!40]{À commenter \\}
+La \figref{img:roc-curves} contient les courbes ROC (i.e. le taux de vrais
+positifs en fonction du taux de faux positifs) obtenues avec chaque méthode
+ainsi qu'avec un classifieur aléatoire. Nous constatons que les courbes
+correspondant au SVM et à AdaBoost sont plus éloignées du coude du classifieur
+idéal (qui passe de $(0,0)$ à $(0,1)$ à $(1,1)$) que les autres. 
 
+Afin d'avoir une mesure de qualité d'un modèle indépendante des seuils de
+classification, nous calculons également l'aire sous la courbe ROC (AUC) de
+chaque méthode (\tabref{tab:AUC-scores}). Les modèles RF et RFNan obtiennent les
+meilleurs scores : ce sont ceux qui distinguent le mieux les deux classes, i.e. ils
+sont meilleurs que les autres pour étiqueter le background comme étant du
+background, et le signal comme étant du signal. \\
 
+\todo[inline, color=yellow!40]{Je me demande à quel point il faut expliquer les
+métriques ROC et AUC ?\\}
+
+\begin{table}[H]
+\centering
+\resizebox{0.3\textwidth}{!}{
+\begin{tabular}{c|c}
+         & \% AUC\\
+        \hline
+        SVM & 81.95\\
+        Bagging & 85.5\\
+        RF & \cellcolor{green!25} 86.20\\
+        RFNan & 85.88\\
+        AdaBoost & 80.45\\
+\end{tabular}}
+\caption{AUC obtenus avec chaque méthode}
+\label{tab:AUC-scores}
+\end{table}
 
 
 \newpage
