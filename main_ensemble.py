@@ -84,7 +84,6 @@ def grid_search(data, weights):
     return pd.DataFrame.from_records(results_bagging, columns=['n_estimators', 'average', 'std']),\
            pd.DataFrame.from_records(results_boosting, columns=['n_estimators', 'average', 'std'])
 
-
 def grid_search_rf(data, weights):
     n_estimators_values = [None, 500, 1000, 2000]
     max_depth_values = [20, 50, None]
@@ -136,8 +135,9 @@ def main():
     n_train = 1000
     n_test = 1000
     RFnan = False
-    pca = True
-
+    pca = False
+    
+    start = time()
     # LOAD DATA
     data = shuffle(pd.read_csv('data.csv'), random_state=seed)[:n_train + n_test]
     y = data['Label']
@@ -164,13 +164,12 @@ def main():
         transformers.append(StandardScaler())
         if pca:
             print("Using PCA")
-            transformers.append(PCA(15))
+            transformers.append(PCA(20))
 
     for trans in transformers:
         X_train = trans.fit_transform(X_train)
         X_test = trans.transform(X_test)
 
-    start = time()
     if not eval_mode:
         if RFnan:
             results = grid_search_rf((X_train, y_train), weights_train)
@@ -188,11 +187,13 @@ def main():
             average, std = eval_best((X_test, y_test), weights_test, rf_nan)
             print("RFNan : %.4f +/- %.4f" % (average, std))
         else:
-            rf = RandomForestClassifier(n_estimators=2000, max_depth=50)
-            bagging = BaggingClassifier(Perceptron(max_iter=1000), max_samples=0.5, max_features=0.5, n_estimators=500)
-            boosting = AdaBoostClassifier(n_estimators=50)
-
-            for clf in [rf, bagging, boosting]:
+            clfs = [
+                RandomForestClassifier(n_estimators=2000, max_depth=50),
+                BaggingClassifier(Perceptron(max_iter=1000), max_samples=0.5, max_features=0.5, n_estimators=500),
+                AdaBoostClassifier(n_estimators=50),
+            ]
+            
+            for clf in clfs:
                 average, std = eval_best((X_test, y_test), weights_test, clf)
                 print(clf)
                 print("%.4f +/- %.4f" % (average, std))

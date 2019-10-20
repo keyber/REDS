@@ -464,9 +464,12 @@ apprises), \textbf{imputing} (paramètres de tous les régresseurs appris) et
     pouvoir comparer l'approche de complétion à celle de conservation des
     données, nous effectuons un scaling des données d'origine et remplaçons les
     valeurs manquantes par une valeur aberrante. Nous ne rajoutons pas de PCA à
-    ces prétraitements. Par la suite, les expériences seront dédoublées : elles
-    seront menées d'un côté sur les données complétées, de l'autre sur les
-    données conservées.  \end{mdframed}
+    ces prétraitements. Le seul modèle entraîné sur le jeu de données contenant des
+    données aberrantes est un Random Forest que l'on nommera RFnan. \end{mdframed}
+
+%Par la suite, les expériences seront dédoublées : elles
+%seront menées d'un côté sur les données complétées, de l'autre sur les
+%données conservées
 
 L'ensemble des paramètres est appris sur les données d'apprentissage et les
 prétraitements sont appliqués sur la totalité des données. \\
@@ -658,19 +661,29 @@ lequel la performance est calculée, le meilleur score est surligné en vert.
     \label{tab:ensemble-results-pca}
 \end{table}
 
+Les performances obtenues avec PCA sont toujours inférieures à celles obtenues sans.
+L'utilisation d'une PCA n'est donc pas judicieuse.
+
 \todo[inline, color=red!40]{À commenter \\}
 
-\begin{figure}[H]
-	\centering
-    \begin{subfigure}[c]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{images/RF100.png}
-    \end{subfigure}
-    \begin{subfigure}[c]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{images/RF1000.png}
-    \end{subfigure}
-\end{figure}
 
-\todo[inline, color=yellow!40]{Remplacer par les nouveaux plots \\}
+%\begin{figure}[H]
+%    \center
+%    \includegraphics[width=0.7\textwidth]{images/learning_curve.png}
+%    \caption{Précisions obtenues en fonction de la taille d'apprentissage (échelle logarithmique)}
+%    \label{img:ams-C}
+%\end{figure}
+%\todo[inline, color=yellow!40]{Remplacer par les nouveaux plots \\}
+
+Les meilleurs modèles sont RF et RFnan, leur différence de score
+n'est pas suffisante pour pouvoir les départager.
+En relançant les expériences sur 10 fois plus de données
+(le temps d'exécution devient trop important au delà),
+on obtient les performances AMS suivantes :
+RF:     18.20 +/- 1.39
+RFnan:  18.29 +/- 1.75
+Les scores obtenus sont encore une fois très similaires, on pourra donc préférer le modèle RFnan
+qui ne nécessite pas d'entraîner des régresseurs pour compléter les données lors du prétraitement. 
 
 \todo[inline, color=red!40]{À commenter \\}
 
@@ -682,6 +695,8 @@ lequel la performance est calculée, le meilleur score est surligné en vert.
 \end{figure}
 
 \todo[inline, color=red!40]{À commenter \\}
+
+
 
 
 \newpage
