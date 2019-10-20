@@ -127,16 +127,16 @@ def main_eval_model_nan(x, y, n_splits):
     print("rfnan : %.2f, +/- %.2f (%.0fs)" % (np.mean(res) * 100, np.std(res) / np.sqrt(n_splits) * 100, time() - t0))
 
 def main_learning_curve(x, y):
-    title = "Learning Curves (100)"
+    title = "RF Learning Curves"
     # Cross validation with 100 iterations to get smoother mean test and train
     # score curves, each time with 20% data randomly selected as a validation set.
     cv = ShuffleSplit(n_splits=5, test_size=0.2, random_state=0)
-    clf = RandomForestClassifier(n_estimators=10, max_depth=None)
-    plot_learning_curve(clf, title, x, y, cv=cv, train_sizes=np.logspace(-3, 0, 4), log_x=True, n_jobs=-1)
+    clf1 = RandomForestClassifier(n_estimators=10, max_depth=None)
+    # plot_learning_curve(clf, title, x, y, cv=cv, train_sizes=np.logspace(-3, 0, 4), log_x=True, n_jobs=-1)
 
-    title = "Learning Curves (1000)"
-    clf = RandomForestClassifier(n_estimators=100, max_depth=None)
-    plot_learning_curve(clf, title, x, y, cv=cv, train_sizes=np.logspace(-3, 0, 4), log_x=True, n_jobs=-1)
+    # title = "Learning Curves (1000)"
+    clf2 = RandomForestClassifier(n_estimators=100, max_depth=None)
+    plot_learning_curve((clf1, clf2), title, x, y, cv=cv, train_sizes=np.logspace(-3, 0, 4), log_x=True, n_jobs=-1)
 
     plt.show()
 
@@ -160,7 +160,7 @@ def main_plot_roc_curve(train, test):
 
 def main():
     n_train = 1000
-    n_test = 1000
+    n_test = 10000
     RFnan = True
 
     # READ
@@ -195,23 +195,23 @@ def main():
     
     
     # GRID SEARCH
-    if RFnan:
-        main_get_best_hyperparam_nan(X_train, y_train, n_splits=3)
-    else:
-        main_get_best_hyperparam(X_train, y_train, n_splits=3)
+    # if RFnan:
+    #     main_get_best_hyperparam_nan(X_train, y_train, n_splits=3)
+    # else:
+    #     main_get_best_hyperparam(X_train, y_train, n_splits=3)
     
     # CROSS VAL
-    if RFnan:
-        main_eval_model_nan(X_train, y_train, n_splits=3)
-    else:
-        main_eval_model(X_train, y_train, n_splits=3)
+    # if RFnan:
+    #     main_eval_model_nan(X_train, y_train, n_splits=3)
+    # else:
+    #     main_eval_model(X_train, y_train, n_splits=3)
     
     
     # LEARNING CURVE
-    #main_learning_curve(X_test, y_test)
+    main_learning_curve(X_test, y_test)
     
     # ROC CURVE
-    main_plot_roc_curve((X_train, y_train), (X_test, y_test))
+    # main_plot_roc_curve((X_train, y_train), (X_test, y_test))
 
     print("temps total", time() - t0)
 

@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import learning_curve
 
 
-def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None, scoring=None,
+def plot_learning_curve(estimators, title, X, y, names=None, colors=None, ylim=None, cv=None,
                         n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5), log_x=False):
     """
     Generate a simple plot of the test and training learning curve.
@@ -78,28 +78,45 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None, scoring=None
     plt.title(title)
     if ylim is not None:
         plt.ylim(*ylim)
-    plt.xlabel("Training examples")
+    if log_x:
+        plt.xlabel("Training examples")
+    else:
+        plt.xlabel("Training examples (logarithmic scale)")
     plt.ylabel("Score")
-    train_sizes, train_scores, test_scores = learning_curve(
-        estimator, X, y, cv=cv, n_jobs=n_jobs, train_sizes=train_sizes, scoring=scoring)
-    train_scores_mean = np.mean(train_scores, axis=1)
-    train_scores_std = np.std(train_scores, axis=1)
-    test_scores_mean = np.mean(test_scores, axis=1)
-    test_scores_std = np.std(test_scores, axis=1)
     plt.grid()
     
+    if names is None:
+        names = ["RF100", "RF1000"]
+    if colors is None:
+        colors = [np.array([0., 0., 1.]), np.array([1., 0., 0.])]
+    bg = np.array([1.,1.,1.])
+    
+    assert len(estimators) == len(colors)
     if log_x:
-        train_sizes = np.log10(train_sizes)
-    plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
-                     train_scores_mean + train_scores_std, alpha=0.1,
-                     color="r")
-    plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
-                     test_scores_mean + test_scores_std, alpha=0.1, color="g")
-    plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
-             label="Training score")
-    plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
-             label="Cross-validation score")
-
+        train_sizes_plt = np.log10(train_sizes)
+    else:
+        train_sizes_plt = train_sizes
+    
+    for i in range(len(estimators)):
+        train_sizes, train_scores, test_scores = learning_curve(
+            estimators[i], X, y, cv=cv, n_jobs=n_jobs, train_sizes=train_sizes)
+        train_scores_mean = np.mean(train_scores, axis=1)
+        train_scores_std = np.std(train_scores, axis=1)
+        test_scores_mean = np.mean(test_scores, axis=1)
+        test_scores_std = np.std(test_scores, axis=1)
+        
+        plt.fill_between(train_sizes_plt, train_scores_mean - train_scores_std,
+                         train_scores_mean + train_scores_std, alpha=0.1,
+                         color=bg*.75 + colors[i]*.25)
+        plt.fill_between(train_sizes_plt, test_scores_mean - test_scores_std,
+                         test_scores_mean + test_scores_std, alpha=0.1, color=colors[i])
+        plt.plot(train_sizes_plt, train_scores_mean, 'o--', color=bg*.75 + colors[i]*.25,
+                 label=names[i] + " train score")
+        plt.plot(train_sizes_plt, test_scores_mean, 'o-', color=colors[i],
+                 label=names[i] + " crossval score")
+    
     plt.legend(loc="best")
+    
+    
+    
     return plt
-
