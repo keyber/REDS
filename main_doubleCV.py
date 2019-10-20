@@ -220,11 +220,11 @@ def main_plot_roc_curve(pca):
     plt.show()
 
 def main():
-    n_train = 1000
+    n_train = 10000
     n_test = 1000
     RFnan = False
     pca = True
-    eval_mode = True
+    eval_mode = False
 
     # READ
     t0 = time()
@@ -252,7 +252,7 @@ def main():
         transformers.append(StandardScaler())
         if pca:
             print("Using PCA")
-            transformers.append(PCA(15))
+            transformers.append(PCA(20))
     
     for trans in transformers:
         X_train = trans.fit_transform(X_train)

@@ -13,6 +13,8 @@
 
 \usepackage{float}
 
+\usepackage[framemethod=tikz]{mdframed}
+
 \setlength{\parindent}{1em}
 %\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
 \newcommand{\hsp}{\hspace{20pt}}
@@ -335,15 +337,32 @@ une image), il n’y a donc \textbf{pas de grand risque de sur-apprentissage} po
 les modèles. Ainsi, la sélection de caractéristique ne semble pas nécessaire.
 Cependant, comme le montre la \figref{img:corr-mat}, certaines variables sont
 \textbf{fortement corrélées} (e.g. \texttt{DER\_mass\_MMC} et
-\texttt{DER\_mass\_transverse\_met\_lep}), on comparera donc les performances
-avec ou sans l’utilisation d’une \textbf{\emph{Analyse en Composantes
-Principales} (PCA)} afin de réduire le nombre de données explicatives.
+\texttt{DER\_mass\_transverse\_met\_lep}). Or, des attributs corrélés peuvent
+diminuer la performance de certains algorithmes (en contribuant au
+sur-apprentissage par exemple).
+
+\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20]
+Afin de réduire le nombre de variables explicatives, nous comparerons donc les
+performances avec ou sans l’utilisation d’une \textbf{\emph{Analyse en
+Composantes Principales} (PCA)}. Pour choisir le nombre de composantes
+principales, nous traçons le pourcentage de variance expliquée en fonction du
+nombre de composantes (\figref{img:explained-var}). Avec 20 composantes, nous
+conservons $98.2\%$ de la variance totale.
+\end{mdframed}
 
 \begin{figure}[H]
     \center
     \includegraphics[width=0.7\textwidth]{images/correlation_matrix.png}
     \caption{Matrice de corrélation entre chaque attribut}
     \label{img:corr-mat}
+\end{figure}
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=0.75\textwidth]{images/explained_variance.png}
+    \caption{Pourcentage de variance expliquée en fonction du nombre de
+    composantes}
+    \label{img:explained-var}
 \end{figure}
 
 \section{Classification des évènements}
@@ -434,17 +453,20 @@ les prétraitements sur l'ensemble des données.
 Les prétraitements et apprentissages des paramètres sont effectués dans l'ordre
 décrit précédemment: \textbf{log-transformation} (valeurs minimales des colonnes
 apprises), \textbf{imputing} (paramètres de tous les régresseurs appris) et
-\textbf{scaling} (moyennes et écarts-types des colonnes appris). De plus, nous
-comparerons les résultats obtenus en appliquant préalablement ou non une
-\textbf{ PCA} (à 15 composantes principales) aux données.
+\textbf{scaling} (moyennes et écarts-types des colonnes appris).
+\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20] De plus, nous
+    comparerons les résultats obtenus avec ces prétraitements à d'autres obtenus
+    en appliquant en plus une \textbf{PCA} (à 20 composantes principales) aux
+    données.
+\end{mdframed}
 
-En parallèle, pour pouvoir comparer l'approche de complétion à celle de
-conservation des données, nous effectuons un scaling des données d'origine et
-remplaçons les valeurs manquantes par une valeur aberrante. Nous ne rajoutons
-pas de PCA à ces prétraitements.
-
-Par la suite, les expériences seront dédoublées : elles seront menées d'un côté
-sur les données complétées, de l'autre sur les données conservées. 
+\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20] En parallèle, pour
+    pouvoir comparer l'approche de complétion à celle de conservation des
+    données, nous effectuons un scaling des données d'origine et remplaçons les
+    valeurs manquantes par une valeur aberrante. Nous ne rajoutons pas de PCA à
+    ces prétraitements. Par la suite, les expériences seront dédoublées : elles
+    seront menées d'un côté sur les données complétées, de l'autre sur les
+    données conservées.  \end{mdframed}
 
 L'ensemble des paramètres est appris sur les données d'apprentissage et les
 prétraitements sont appliqués sur la totalité des données. \\
@@ -457,6 +479,10 @@ d'hyperparamètres, la performance du modèle produit est estimée par
 Pour chaque modèle, nous récupérons les hyperparamètres ayant produit le
 meilleur résultat et \textbf{calculons le score final par cross-validation sur les
 données de test}. \\
+
+\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20] Nous répétons les
+processus de grid-search et d'évaluation avec les données réduites à 20
+composantes principales.  \\ \end{mdframed}
 
 Par souci de temps de calcul, les expériences de recherche de paramètres
 optimaux et d'évaluation des modèles ne sont pas menées sur le dataset entier.
@@ -471,18 +497,6 @@ utilisons aussi comme métrique le \textbf{taux de bonne classification
 obtenus en optimisant les modèles pour cette métrique.
 
 \subsection{Résultats et analyse}
-
-%\begin{table}[H]
-%\centering
-%\resizebox{0.3\textwidth}{!}{
-%\begin{tabular}{c|c|c}
-%    & $C$ & Noyau\\
-%    \hline
-%    Accuracy & 3.16 & rbf \\
-%    AMS & 3.27 & rbf \\
-%\end{tabular}}
-%\caption{Paramètres optimaux pour le SVM}
-%\end{table}
 
 Pour le SVM, nous cherchons la valeur optimale de la pénalité $C$ du terme
 d'erreur ainsi que le meilleur noyau à utiliser. 
@@ -531,12 +545,15 @@ précision de la prédiction. De plus, nous cherchons la profondeur maximale
 optimale des Random Forests.  \\
 
 Les hyperparamètres optimaux obtenus pour chaque méthode d'ensemble, chaque
-métrique et en considérant l'intégralité des variables (resp. seulement les 15
-composantes principales) figurent dans le \tabref{tab:ensemble-parameters}
-(resp.  \tabref{tab:ensemble-parameters-pca}).  Nous ne remarquons pas de
-phénomènes particuliers : ces hyperparamètres n'évoluent pas de façon monotone
-lorsque nous passons d'une méthode/métrique à un autre, ni lorsque nous
-considérons ou non une PCA. \\
+métrique et en considérant l'intégralité des variables figurent dans le
+\tabref{tab:ensemble-parameters}. Nous ne remarquons pas de phénomènes
+particuliers : ces hyperparamètres n'évoluent pas de façon monotone lorsque nous
+passons d'une méthode/métrique à une autre.
+\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20] Dans le cas des
+    données réduites à 20 composantes, les hyperparamètres optimaux obtenus
+    sont, pour la plupart, différents et, une fois de plus, nous ne constatons
+pas d'évolution particulière. Nous décidons donc de ne pas les afficher. \\
+\end{mdframed}
 
 \begin{table}[H]
     \resizebox{\textwidth}{!}{
@@ -557,37 +574,40 @@ considérons ou non une PCA. \\
     \label{tab:ensemble-parameters}
 \end{table}
 
-\begin{table}[H]
-    \resizebox{\textwidth}{!}{
-        \begin{tabular}{c|*{5}{c|}c}
-            \multirow{2}{*}{} &
-            \multicolumn{2}{c|}{Bagging} &
-            \multicolumn{2}{c|}{RF} &
-            \multicolumn{2}{c}{AdaBoost}
-            \\ \cline{2-3} \cline{4-5} \cline{6-7} 
-            & Accuracy & AMS & Accuracy & AMS & Accuracy & AMS\\
-            \hline
-            Nombre d'estimateurs & 2000 & 500 & 500 & 2000 & 500 & 50 \\
-            Profondeur max & \cellcolor{gray!40} & \cellcolor{gray!40} & 50 & 50 & \cellcolor{gray!40} & \cellcolor{gray!40} \\
-        \end{tabular}}
-    \caption{Paramètres optimaux pour les méthodes d'ensemble (avec PCA)}
-    \label{tab:ensemble-parameters-pca}
-\end{table}
+%\begin{table}[H]
+%    \resizebox{\textwidth}{!}{
+%        \begin{tabular}{c|*{5}{c|}c}
+%            \multirow{2}{*}{} &
+%            \multicolumn{2}{c|}{Bagging} &
+%            \multicolumn{2}{c|}{RF} &
+%            \multicolumn{2}{c}{AdaBoost}
+%            \\ \cline{2-3} \cline{4-5} \cline{6-7} 
+%            & Accuracy & AMS & Accuracy & AMS & Accuracy & AMS\\
+%            \hline
+%            Nombre d'estimateurs & 2000 & 500 & 500 & 2000 & 500 & 50 \\
+%            Profondeur max & \cellcolor{gray!40} & \cellcolor{gray!40} & 50 & 50 & \cellcolor{gray!40} & \cellcolor{gray!40} \\
+%        \end{tabular}}
+%    \caption{Paramètres optimaux pour les méthodes d'ensemble (avec PCA)}
+%    \label{tab:ensemble-parameters-pca}
+%\end{table}
 
-\todo[inline, color=yellow!40]{Je ne sais pas si ça vaut le coup de garder les
-paramètres optimaux avec PCA, ça fait beaucoup d'info pas très utile mais pour
-l'instant je les laisse au cas où}
+Sur la \figref{img:ams-C} est tracé l'AMS moyen obtenu en apprentissage en
+fonction de la valeur de $C$ (sans PCA). Nous remarquons que le score augmente
+jusqu'à $C \approx 4$ puis stagne.
 
 \begin{figure}[H]
     \center
     \includegraphics[width=0.7\textwidth]{images/ams.png}
-    \caption{AMS moyen en fonction de la valeur de $C$}
+    \caption{AMS moyen obtenu avec le SVM en fonction de la vaeur de $C$}
     \label{img:ams-C}
 \end{figure}
 
-Sur la \figref{img:ams-C} est tracé l'AMS moyen obtenu en apprentissage en
-fonction de la valeur de $C$ (sans PCA). Nous constatons que le score augmente
-jusqu'à $C \approx 4$ puis stagne.
+\begin{mdframed}[hidealllines=true,backgroundcolor=blue!20]
+Les tableaux \ref{tab:ensemble-results} et \ref{tab:ensemble-results-pca}
+contiennent les scores en accuracy et AMS obtenus avec chaque méthode et,
+respectivement, sans et avec PCA. Pour chaque métrique et chaque ensemble sur
+lequel la performance est calculée, le meilleur score est surligné en vert.
+\end{mdframed}
 
 \begin{table}[H]
     \resizebox{\textwidth}{!}{
@@ -635,7 +655,7 @@ jusqu'à $C \approx 4$ puis stagne.
             $2.50 \pm 0.33$ \\
         \end{tabular}}
     \caption{Performances obtenues avec chaque méthode (avec PCA)}
-    \label{tab:ensemble-results}
+    \label{tab:ensemble-results-pca}
 \end{table}
 
 \todo[inline, color=red!40]{À commenter \\}
