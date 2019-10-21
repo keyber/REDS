@@ -13,6 +13,8 @@
 
 \usepackage{float}
 
+\usepackage{bm}
+
 \usepackage[framemethod=tikz]{mdframed}
 
 \setlength{\parindent}{1em}
@@ -343,10 +345,10 @@ sur-apprentissage par exemple).
 
 Afin de réduire le nombre de variables explicatives, nous comparerons donc les
 performances avec ou sans l’utilisation d’une \textbf{\emph{Analyse en
-Composantes Principales} (PCA)}. Pour choisir le nombre de composantes
-principales, nous traçons le pourcentage de variance expliquée en fonction du
-nombre de composantes (\figref{img:explained-var}). Avec 20 composantes, nous
-conservons $98.2\%$ de la variance totale.
+Composantes Principales} (PCA)}. Pour \textbf{choisir le nombre de composantes
+principales}, nous traçons le \textbf{pourcentage de variance expliquée en
+fonction du nombre de composantes} (\figref{img:explained-var}). Avec \textbf{20
+composantes}, nous conservons $98.2\%$ de la variance totale.
 
 \begin{figure}[H]
     \center
@@ -444,41 +446,42 @@ En revanche, si le classifieur faible est trop complexe, le modèle de Boosting
 \subsection{Protocole d'expérimentation} 
 
 Tout d'abord, nous commençons par \textbf{séparer le jeu de données en train et
-en test}.  Avant d'entraîner nos modèles, nous apprenons les \textbf{paramètres
-de prétraitement des données} sur l'ensemble d'apprentissage, et nous appliquons
-les prétraitements sur l'ensemble des données. 
+en test}. Le protocole d'expérimentation est le suivant :
 
-Les prétraitements et apprentissages des paramètres sont effectués dans l'ordre
-décrit précédemment: \textbf{log-transformation} (valeurs minimales des colonnes
-apprises), \textbf{imputing} (paramètres de tous les régresseurs appris) et
-\textbf{scaling} (moyennes et écarts-types des colonnes appris).  De plus, nous
-comparerons les résultats obtenus avec ces prétraitements à d'autres obtenus en
-appliquant en plus une \textbf{PCA} (à 20 composantes principales) aux données.
+\begin{enumerate}[label=\alph*.]
+    
+    \item   Avant d'entraîner nos modèles, nous apprenons les
+        \textbf{paramètres de prétraitement des données} sur l'ensemble
+        d'apprentissage, et nous appliquons les prétraitements sur l'ensemble
+        des données.  Les prétraitements et apprentissages des paramètres sont
+        effectués dans l'ordre décrit précédemment: \textbf{log-transformation}
+        (valeurs minimales des colonnes apprises), \textbf{imputing} (paramètres
+        de tous les régresseurs appris) et \textbf{scaling} (moyennes et
+        écarts-types des colonnes appris). 
 
-En parallèle, pour pouvoir comparer l'approche de complétion à celle de
-conservation des données, nous effectuons un scaling des données d'origine et
-remplaçons les valeurs manquantes par une valeur aberrante. Nous ne rajoutons
-pas de PCA à ces prétraitements. Le seul modèle entraîné sur le jeu de données
-contenant des données aberrantes est un Random Forest que nous nommerons RFnan.
+\item Pour chaque algorithme, nous procédons par \textbf{\emph{grid search} pour
+    trouver les hyperparamètres optimaux}. Pour chaque combinaison
+        d'hyperparamètres, la performance du modèle produit est estimée par
+        \textbf{\emph{cross-validation}} sur l'ensemble d'apprentissage.
 
-%Par la suite, les expériences seront dédoublées : elles
-%seront menées d'un côté sur les données complétées, de l'autre sur les
-%données conservées
+\item Pour chaque modèle, nous récupérons les hyperparamètres ayant produit le
+    meilleur résultat et \textbf{calculons le score final par cross-validation
+        sur les données de test}. \\
 
-L'ensemble des paramètres est appris sur les données d'apprentissage et les
-prétraitements sont appliqués sur la totalité des données. \\
+\end{enumerate}
 
-Pour chaque algorithme, nous procédons par \textbf{\emph{grid search} pour
-trouver les hyperparamètres optimaux}. Pour chaque combinaison
-d'hyperparamètres, la performance du modèle produit est estimée par
-\textbf{\emph{cross-validation}} sur l'ensemble d'apprentissage. \\
+Nous comparons les résultats obtenus à ceux produits en appliquant aux données,
+\textbf{en plus des prétraitements de l'étape a.}, une \textbf{PCA} (à 20
+composantes principales). \\
 
-Pour chaque modèle, nous récupérons les hyperparamètres ayant produit le
-meilleur résultat et \textbf{calculons le score final par cross-validation sur les
-données de test}. \\
+En parallèle, pour pouvoir \textbf{comparer l'approche de complétion à celle de
+conservation des données}, nous menons d'autres expériences où les données sont
+prétraitées de la manière suivante : log-transformation, scaling et
+\textbf{remplacement des valeurs manquantes par une valeur aberrante}. Nous ne
+rajoutons pas de PCA à ces prétraitements. 
 
-Nous répétons les processus de grid-search et d'évaluation avec les données
-réduites à 20 composantes principales. 
+\textbf{Le seul modèle entraîné sur le jeu de données contenant des données
+aberrantes} est un \textbf{Random Forest} que nous nommerons \textbf{RFnan}. \\
 
 Par souci de temps de calcul, les expériences de recherche de paramètres
 optimaux et d'évaluation des modèles ne sont pas menées sur le dataset entier.
@@ -494,25 +497,25 @@ obtenus en optimisant les modèles pour cette métrique.
 
 \subsection{Résultats et analyse}
 
-Pour le SVM, nous cherchons la valeur optimale de la pénalité $C$ du terme
-d'erreur ainsi que le meilleur noyau à utiliser. 
+Pour le \textbf{SVM}, nous cherchons la valeur optimale de la \textbf{pénalité
+$\bm{C}$ du terme d'erreur} ainsi que le meilleur \textbf{noyau} à utiliser. 
 
-$C$ correspond à la constante de \emph{soft margin}. Cet hyperparamètre influe
-sur le compromis entre l'erreur en apprentissage et la maximisation de la marge.
-Plus sa valeur est petite, plus le modèle sera tolérant envers les exemples mal
-classés ou dans la marge, ce qui correspond à élargir cette dernière. Nous
-faisons varier $C$ parmi 100 valeurs entre 0.1 et 10 équitablement réparties sur
-une échelle logarithmique.
+$C$ correspond à la \textbf{constante de \emph{soft margin}}. Cet hyperparamètre
+influe sur le \textbf{compromis entre l'erreur en apprentissage et la
+maximisation de la marge}.  Plus sa valeur est petite, plus le modèle sera
+tolérant envers les exemples mal classés ou dans la marge, ce qui correspond à
+élargir cette dernière. Nous faisons varier $C$ parmi \textbf{100 valeurs entre
+0.1 et 10} équitablement réparties sur une échelle logarithmique.
 
-De plus, nous cherchons le noyau le plus adapté : \emph{Radial Basis Function}
-(rbf) ou un noyau polynomial (poly). Cet hyperparamètre définit le type
-d'hyperplan utilisé pour séparer les données.  \\
+De plus, nous cherchons le noyau le plus adapté : \textbf{\emph{Radial Basis
+Function} (rbf) ou un noyau polynomial (poly)}. Cet hyperparamètre définit le
+\textbf{type d'hyperplan} utilisé pour séparer les données.  \\
 
-La \figref{tab:svm-parameters} contient les hyperpamètres optimisant le SVM pour
-chaque métrique, avec ou sans PCA. Nous constatons que le noyau rbf permet
-d'obtenir les meilleures performances dans chaque cas, et que les valeurs de $C$
-maximisant les scores en AMS sont similaires à celles maximisant l'accuracy.\\
-
+La \figref{tab:svm-parameters} contient les \textbf{hyperpamètres optimisant le
+SVM pour chaque métrique, avec ou sans PCA}. Nous constatons que le
+\textbf{noyau rbf} permet d'obtenir les meilleures performances dans chaque cas,
+et que les \textbf{valeurs de $\bm{C}$ maximisant les scores en AMS sont similaires à celles
+maximisant l'accuracy}.\\
 
 \begin{table}[H]
     \centering
@@ -531,19 +534,20 @@ maximisant les scores en AMS sont similaires à celles maximisant l'accuracy.\\
     \label{tab:svm-parameters}
 \end{table}
 
-Pour les méthodes d'ensemble, nous faisons varier le nombre d'estimateurs (50,
-500, 1000 ou 2000), qui correspond à l'hyperparamètre influant le plus sur la
-précision de la prédiction. De plus, nous cherchons la profondeur maximale
-optimale des Random Forests.  \\
+Pour les \textbf{méthodes d'ensemble,} nous faisons varier le \textbf{nombre
+d'estimateurs} (50, 500, 1000 ou 2000), qui correspond à
+\textbf{l'hyperparamètre influant le plus sur la précision de la prédiction}. De
+plus, nous cherchons la \textbf{profondeur maximale optimale des Random
+Forests}.  \\
 
-Les hyperparamètres optimaux obtenus pour chaque méthode d'ensemble, chaque
-métrique et en considérant l'intégralité des variables figurent dans le
-\tabref{tab:ensemble-parameters}. Nous ne remarquons pas de phénomènes
-particuliers : ces hyperparamètres n'évoluent pas de façon monotone lorsque nous
-passons d'une méthode/métrique à une autre.  Dans le cas des données réduites à
-20 composantes, les hyperparamètres optimaux obtenus sont, pour la plupart,
-différents et, une fois de plus, nous ne constatons pas d'évolution
-particulière. Nous décidons donc de ne pas les afficher. \\
+\textbf{Les hyperparamètres optimaux obtenus pour chaque méthode d'ensemble,
+chaque métrique et en considérant l'intégralité des variables} figurent dans le
+\tabref{tab:ensemble-parameters}. Nous ne remarquons \textbf{pas de phénomènes
+particuliers} : ces hyperparamètres n'évoluent pas de façon monotone lorsque
+nous passons d'une méthode/métrique à une autre.  Dans le cas des données
+réduites à 20 composantes, les hyperparamètres optimaux obtenus sont, pour la
+plupart, différents des précédents et, une fois de plus, nous ne constatons pas
+d'évolution particulière. Nous décidons donc de ne pas les afficher. \\
 
 \begin{table}[H]
     \resizebox{\textwidth}{!}{
@@ -581,9 +585,9 @@ particulière. Nous décidons donc de ne pas les afficher. \\
 %    \label{tab:ensemble-parameters-pca}
 %\end{table}
 
-Sur la \figref{img:ams-C} est tracé l'AMS moyen obtenu en apprentissage en
-fonction de la valeur de $C$ (sans PCA). Nous remarquons que le score augmente
-jusqu'à $C \approx 4$ puis stagne.
+Sur la \figref{img:ams-C} est tracé \textbf{l'AMS moyen obtenu en apprentissage
+en fonction de la valeur de $\bm{C}$ (sans PCA)}. Nous remarquons que le score
+augmente jusqu'à $C \approx 4$ puis stagne.
 
 \begin{figure}[H]
     \center
@@ -593,9 +597,9 @@ jusqu'à $C \approx 4$ puis stagne.
 \end{figure}
 
 Les tableaux \ref{tab:ensemble-results} et \ref{tab:ensemble-results-pca}
-contiennent les scores en accuracy et AMS obtenus avec chaque méthode et,
-respectivement, sans et avec PCA. Pour chaque métrique et chaque ensemble sur
-lequel la performance est calculée, le meilleur score est surligné en vert.
+contiennent les \textbf{scores en accuracy et AMS obtenus avec chaque méthode
+et, respectivement, sans et avec PCA}. Pour chaque métrique et chaque ensemble
+sur lequel la performance est calculée, le meilleur score est surligné en vert.
 
 \begin{table}[H]
     \resizebox{\textwidth}{!}{
@@ -647,9 +651,7 @@ lequel la performance est calculée, le meilleur score est surligné en vert.
 \end{table}
 
 Les performances obtenues avec PCA sont toujours inférieures à celles obtenues
-sans.  L'utilisation d'une PCA n'est donc pas judicieuse.
-
-\todo[inline, color=yellow!40]{Commenter les autres modèles ?\\}
+sans. \textbf{L'utilisation d'une PCA n'est donc pas judicieuse.}
 
 %\begin{figure}[H]
 %    \center
@@ -659,19 +661,19 @@ sans.  L'utilisation d'une PCA n'est donc pas judicieuse.
 %\end{figure}
 %\todo[inline, color=yellow!40]{Remplacer par les nouveaux plots \\}
 
-Les meilleurs modèles sont RF et RFnan, leur différence de score n'est pas
-suffisante pour pouvoir les départager.  En relançant les expériences sur 10
+\textbf{Les meilleurs modèles sont RF et RFnan}, leur différence de score n'est
+pas suffisante pour pouvoir les départager.  En relançant les expériences sur 10
 fois plus de données (le temps d'exécution devient trop important au delà), nous
-obtenons les performances AMS ($10^{-2}$) suivantes :
+obtenons les performances AMS (multipliées par $10^{-2}$) suivantes :
 
 \begin{itemize}
     \item RF :     $18.20 \pm 1.39$
     \item RFnan :  $18.29 \pm 1.75$
 \end{itemize}
 
-Les scores obtenus sont encore une fois très similaires, nous préférerons
+Les scores obtenus sont encore une fois très similaires, \textbf{nous préférerons
 cependant le modèle RFnan qui ne nécessite pas d'entraîner des régresseurs pour
-compléter les données lors du prétraitement. 
+compléter les données lors du prétraitement}. 
 
 \begin{figure}[H]
     \center
@@ -680,25 +682,24 @@ compléter les données lors du prétraitement.
     \label{img:roc-curves}
 \end{figure}
 
-La \figref{img:roc-curves} contient les courbes ROC (i.e. le taux de vrais
-positifs en fonction du taux de faux positifs) obtenues avec chaque méthode
-ainsi qu'avec un classifieur aléatoire. Nous constatons que les courbes
-correspondant au SVM et à AdaBoost sont plus éloignées du coude du classifieur
-idéal (qui passe de $(0,0)$ à $(0,1)$ à $(1,1)$) que les autres. 
+La \figref{img:roc-curves} contient les \textbf{courbes ROC} (i.e. le taux de
+vrais positifs en fonction du taux de faux positifs) \textbf{obtenues avec
+chaque méthode} ainsi qu'avec un classifieur aléatoire. Nous constatons que les
+courbes correspondant au \textbf{SVM et à AdaBoost} sont \textbf{plus éloignées
+du coude du classifieur idéal} (qui passe de $(0,0)$ à $(0,1)$ à $(1,1)$) que
+les autres. 
 
 Afin d'avoir une mesure de qualité d'un modèle indépendante des seuils de
-classification, nous calculons également l'aire sous la courbe ROC (AUC) de
-chaque méthode (\tabref{tab:AUC-scores}). Les modèles RF et RFNan obtiennent les
-meilleurs scores : ce sont ceux qui distinguent le mieux les deux classes, i.e. ils
-sont meilleurs que les autres pour étiqueter le background comme étant du
-background, et le signal comme étant du signal. \\
-
-\todo[inline, color=yellow!40]{Je me demande à quel point il faut expliquer les
-métriques ROC et AUC ?\\}
+classification, nous calculons également \textbf{l'aire sous la courbe ROC (AUC)
+correspondant à chaque méthode} (\tabref{tab:AUC-scores}). Les modèles
+\textbf{RF et RFNan obtiennent les meilleurs scores} : ce sont ceux qui
+distinguent le mieux les deux classes, i.e. ils sont meilleurs que les autres
+pour étiqueter le background comme étant du background, et le signal comme étant
+du signal. \\
 
 \begin{table}[H]
 \centering
-\resizebox{0.3\textwidth}{!}{
+\resizebox{0.25\textwidth}{!}{
 \begin{tabular}{c|c}
          & \% AUC\\
         \hline
@@ -711,6 +712,8 @@ métriques ROC et AUC ?\\}
 \caption{AUC obtenus avec chaque méthode}
 \label{tab:AUC-scores}
 \end{table}
+
+\section{Conclusion}
 
 
 \newpage
