@@ -213,13 +213,18 @@ deux classes sont :
     \item \emph{tau tau decay of a Higgs boson}
 \end{itemize}
 
-Les données sont issues du projet Kaggle \emph{ATLAS Higgs Boson Machine Learning Challenge
-2014}. 
+Afin de répondre à cette problématique, nous commencerons d'abord par analyser
+les données afin de les transformer de manière judicieuse. Nous choisirons
+ensuite plusieurs classifieurs, dont les hyperparamètres seront optimisés pour
+la tâche, et nous les entraînerons sur nos données. Enfin, nous évaluerons ces
+méthodes à partir des résultats obtenus. 
 
 \section{Analyse préliminaire des données}
 
-La base de données est constituée de 818238 évènements simulés. Chaque évènement
-est défini par 30 attributs numériques et un label à prédire. \\
+Les données sont issues du projet Kaggle \emph{ATLAS Higgs Boson Machine
+Learning Challenge 2014}. Cette base est constituée de 818238 évènements
+simulés. Chaque évènement est défini par 30 attributs numériques et un label à
+prédire. \\
 
 Les données sont composées à \textbf{34\% de labels positifs} (les
 \emph{signaux}) et à 66\% de labels négatifs (le \emph{background}). Les classes
@@ -715,6 +720,15 @@ du signal. \\
 
 \section{Conclusion}
 
+Ce projet nous a permis de mettre en place une chaîne de traitement des données
+standard pour une tâche de classification binaire. Nous avons prétraité les
+données de sorte à ré-équilibrer les distributions de variables et pallier au
+problème des données manquantes. Une baseline ainsi que plusieurs méthodes
+d'ensemble ont ensuite été mis en place pour répondre au problème de détection
+du boson de Higgs. Enfin, nous avons évalué et comparé entre eux chaque modèle
+selon plusieurs métriques.
+
+\todo[inline, color=yellow!40]{Difficultés et perspectives}
 
 \newpage
 \printbibliography

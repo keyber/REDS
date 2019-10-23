@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017) (preloaded format=xelatex 2018.2.24)  21 OCT 2019 22:41
+This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017) (preloaded format=xelatex 2018.2.24)  23 OCT 2019 10:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2087,134 +2087,139 @@ File: se-ascii-print.def 2016/05/16 v1.11 stringenc: Printable ASCII characters
 [1
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 221--223
+Underfull \hbox (badness 10000) in paragraph at lines 224--228
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 224--230
+Underfull \hbox (badness 10000) in paragraph at lines 229--235
 
  []
 
 
-Overfull \hbox (0.54662pt too wide) in paragraph at lines 233--240
+Overfull \hbox (0.54662pt too wide) in paragraph at lines 238--245
 \TU/LinuxLibertineO(0)/m/n/12 en omettant les valeurs manquantes. Nous constato
 ns que \TU/LinuxLibertineO(0)/bx/n/12 toutes les variables ne suivent
  []
 
 File: images/histograms_sample.png Graphic file (type QTm)
-<use  "images/histograms_sample.png" >
-Underfull \hbox (badness 10000) in paragraph at lines 248--257
+<use  "images/histograms_sample.png" > [1]
+Underfull \hbox (badness 10000) in paragraph at lines 253--262
 
  []
 
-[1]
 File: images/histograms_before_log.png Graphic file (type QTm)
- <use  "images/histograms_before_log.png" >
+<use  "images/histograms_before_log.png" >
 File: images/histograms_after_log.png Graphic file (type QTm)
 
 <use  "images/histograms_after_log.png" > [2]
-Underfull \hbox (badness 10000) in paragraph at lines 318--322
+Underfull \hbox (badness 10000) in paragraph at lines 323--327
 
  []
 
+[3]
 File: images/correlation_matrix.png Graphic file (type QTm)
-<use  "images/correlation_matrix.png" > [3]
+ <use  "images/correlation_matrix.png" >
 File: images/explained_variance.png Graphic file (type QTm)
 
 <use  "images/explained_variance.png" > [4]
-Underfull \hbox (badness 10000) in paragraph at lines 389--394
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 410--413
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 416--426
+Underfull \hbox (badness 10000) in paragraph at lines 394--399
 
  []
 
 [5]
-Overfull \hbox (6.26169pt too wide) in paragraph at lines 467--470
+Underfull \hbox (badness 10000) in paragraph at lines 415--418
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 421--431
+
+ []
+
+
+Overfull \hbox (6.26169pt too wide) in paragraph at lines 472--475
 []\TU/LinuxLibertineO(0)/m/n/12 Pour chaque modèle, nous récupérons les hyperpa
 ramètres ayant produit le meilleur
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 467--470
+Underfull \hbox (badness 10000) in paragraph at lines 472--475
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 473--476
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 484--485
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 486--492
+Underfull \hbox (badness 10000) in paragraph at lines 478--481
 
  []
 
 [6]
-Underfull \hbox (badness 10000) in paragraph at lines 510--513
+Underfull \hbox (badness 10000) in paragraph at lines 489--490
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 514--519
+Underfull \hbox (badness 10000) in paragraph at lines 491--497
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 537--542
+Underfull \hbox (badness 10000) in paragraph at lines 515--518
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 544--551
+Underfull \hbox (badness 10000) in paragraph at lines 519--524
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 542--547
+
+ []
+
+[7]
+Underfull \hbox (badness 10000) in paragraph at lines 549--556
 
  []
 
 File: images/ams.png Graphic file (type QTm)
-<use  "images/ams.png" > [7] [8]
+<use  "images/ams.png" > [8]
 File: images/ROC_curves.png Graphic file (type QTm)
- <use  "images/ROC_curves.png" >
-Underfull \hbox (badness 10000) in paragraph at lines 692--699
+ <use  "images/ROC_curves.png" > [9]
+Underfull \hbox (badness 10000) in paragraph at lines 697--704
 
  []
 
-[9] [10]
+Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
+ine 731.
+[10] [11]
 
-LaTeX Warning: Empty bibliography on input line 720.
+LaTeX Warning: Empty bibliography on input line 734.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 721.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 721.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 735.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 735.
 (./beroukhim-nguyen-rapport.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 721.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 721.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 735.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 735.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
 Package logreq Info: Writing requests to 'beroukhim-nguyen-rapport.run.xml'.
 \openout1 = `beroukhim-nguyen-rapport.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 41545 strings out of 493005
- 788009 string characters out of 6134596
- 1268121 words of memory out of 5000000
- 44897 multiletter control sequences out of 15000+600000
+ 41591 strings out of 493005
+ 789253 string characters out of 6134596
+ 1268172 words of memory out of 5000000
+ 44943 multiletter control sequences out of 15000+600000
  15361 words of font info for 76 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 67i,12n,77p,10441b,3731s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 67i,12n,80p,10441b,3731s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on beroukhim-nguyen-rapport.pdf (11 pages).
+Output written on beroukhim-nguyen-rapport.pdf (12 pages).
